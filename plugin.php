@@ -52,28 +52,32 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	} );
 
 	/**
-	 * Used for change data in function arguments
+	 * Used for change data in function arguments on export
 	 */
 	add_filter( 'sublime_parse_function_args', function( $completions, $name, $arguments ) {
 		return $completions;
 	}, 10, 3 );
 
+	/**
+	 * Used for exclude some functions on export
+	 */
 	add_filter( 'sublime_exclude_functions', function( $exclude, $name ) {
 		return $exclude;
 	}, 10, 2 );
 
+	/**
+	 * Used for exclude private functions on export
+	 */
 	add_filter( 'sublime_exclude_private_functions', function ( $exclude, $post ) {
-		return false;
+		// if ( 0 === strpos( $post->post_title, '_' ) ) {
+		// 	$params_tags = get_post_meta( $post->ID, '_wp-parser_tags', true );
+		// 	$access      = array_column( wp_list_filter( $params_tags, array( 'name' => 'access' ) ), 'content', 'name' );
 
-		if ( 0 === strpos( $post->post_title, '_' ) ) {
-			$params_tags = get_post_meta( $post->ID, '_wp-parser_tags', true );
-			$access      = array_column( wp_list_filter( $params_tags, array( 'name' => 'access' ) ), 'content', 'name' );
-
-			if ( ! empty( $access ) ) {
-				if ( in_array( 'private', array_values( $access ) ) )
-					return true;
-			}
-		}
+		// 	if ( ! empty( $access ) ) {
+		// 		if ( in_array( 'private', array_values( $access ) ) )
+		// 			return true;
+		// 	}
+		// }
 
 		return $exclude;
 	}, 10, 2 );
