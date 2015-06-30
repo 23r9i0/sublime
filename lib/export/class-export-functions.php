@@ -40,18 +40,16 @@ class Export_Functions extends Export_Base {
 		setup_postdata( $post );
 		$arguments = \WP_Parser\get_arguments();
 		wp_reset_postdata();
-		$last = end( $arguments );
-		$last = ( isset( $last['default_value'] ) ) ? $last['default_value'] : $last['name'];
 
 		return array(
 			'trigger'   => $post->post_title . "\tWP Function",
-			'contents'  => $this->contents( $post->post_title, $this->parse_args( $arguments ), $last ),
+			'contents'  => $this->contents( $post->post_title, $this->parse_args( $arguments ), end( $arguments ) ),
 			// 'parse'     => $this->parse_args( $arguments ),
 			// 'arguments' => $arguments,
 		);
 	}
 
-	public function contents( $name, $arguments, $last_argument_name ) {
+	public function contents( $name, $arguments, $last_argument ) {
 		if ( empty( $arguments ) ) {
 			if ( 0 === strpos( $name, '__return_' ) )
 				return apply_filters( 'sublime_parse_function', sprintf( '%s${1:()${2:;}}${0:}', $name ), $name, $arguments );
@@ -59,10 +57,10 @@ class Export_Functions extends Export_Base {
 			return apply_filters( 'sublime_parse_function', sprintf( '%s()${0:;}', $name ), $name, $arguments );
 		}
 
-		return $this->parse_contents( $arguments, $name, $last_argument_name );
+		return $this->parse_contents( $arguments, $name, $last_argument );
 	}
 
-	public function parse_contents( $data, $name, $last_argument_name ) {
+	public function parse_contents( $data, $name, $last_argument ) {
 		if ( 1 === count( $data ) && ! isset( $data[0]['childrens'] ) ) {
 			if ( false === strpos( $data[0]['name'], 'deprecated' ) ) {
 				if ( isset( $data[0]['default_value'] ) ) {
@@ -71,15 +69,23 @@ class Export_Functions extends Export_Base {
 					$arguments = sprintf( ' ${1:%s} ', $data[0]['name'] );
 				}
 			} else {
-				$arguments = sprintf( '${1: %s }', ( isset( $data[0]['default_value'] ) ? $data[0]['default_value'] : $data[0]['name'] ) );
+				// $arguments = sprintf( '${1: %s }', ( isset( $data[0]['default_value'] ) ? $data[0]['default_value'] : $data[0]['name'] ) );
+				$arguments = '';
 			}
 		} else {
-			$arguments = '${1: ';
-			$index = 1;
-			foreach ( $data as $key => $arg ) {
-				$arguments = $this->argument( $arguments, $arg, ++$index, 0, $last_argument_name );
+			if ( isset( $data[0]['childrens'] ) ) {
+				$arguments = '${1: ';
+				$index = 2;
+			} else {
+				$arguments = ' ';
+				$index = 1;
 			}
-			$arguments .= ' }';
+			foreach ( $data as $key => $arg ) {
+				$arguments = $this->argument( $arguments, $arg, $index, 0, isset( $data[0]['childrens'] ), $last_argument );
+				$index++;
+			}
+
+			$arguments .= ( isset( $data[0]['childrens'] ) ) ? ' }' : ' ';
 		}
 
 		$arguments = apply_filters( 'sublime_parse_function_args', $arguments, $name, $data );
@@ -87,20 +93,21 @@ class Export_Functions extends Export_Base {
 		return apply_filters( 'sublime_parse_function', sprintf( '%s(%s)${0:;}', $name, $arguments ), $name, $arguments );
 	}
 
-	public function argument( $arguments, $data, $index, $repeat = 0, $last_argument_name ) {
-		$name = isset( $data['default_value'] ) ? $data['default_value'] : sprintf( '\\%s', $data['name'] );
+	public function argument( $arguments, $data, $index, $repeat = 0, $wrap = false, $last_argument ) {
+		$name          = isset( $data['default_value'] ) ? $data['default_value'] : sprintf( '\\%s', $data['name'] );
+		$first_element = $wrap ? 2 : 1;
 
 		if ( false === strpos( $data['name'], 'deprecated' ) ) {
 			if ( isset( $data['childrens'] ) ) {
-				if ( 2 !== $index ) {
-					$arguments .= sprintf( '${%d:, ${%d:%s}', ++$index, ++$index, $name );
+				if ( $first_element !== $index ) {
+					$arguments .= sprintf( '${%d:, ${%d:%s}', $index, ++$index, $name );
 				} else {
 					$arguments .= sprintf( '${%d:%s}', $index, $name );
 				}
 			} else {
-				if ( 2 !== $index ) {
+				if ( $first_element !== $index ) {
 					if ( isset( $data['default_value'] ) ) {
-						$arguments .= sprintf( '${%d, ${%d:%s}}', $index, ++$index, $name );
+						$arguments .= sprintf( '${%d:, ${%d:%s}}', $index, ++$index, $name );
 					} else {
 						$arguments .= sprintf( ', ${%d:%s}', $index, $name );
 					}
@@ -109,17 +116,20 @@ class Export_Functions extends Export_Base {
 				}
 			}
 		} else {
-			$arguments .= sprintf( '%s%s', ( 2 !== $index ? ', ' : '' ), $name );
-			++$index;
+			if ( $data['name'] !== $last_argument['name'] ) {
+				$arguments .= sprintf( '%s%s', ( $first_element !== $index ? ', ' : '' ), $name );
+				++$index;
+			}
 		}
 
 		if ( isset( $data['childrens'] ) ) {
 			foreach ( $data['childrens'] as $key => $children ) {
-				$arguments = $this->argument( $arguments, $children, ( $key + $index + 1 ), ( $repeat + 1 ), $last_argument_name );
+				$arguments = $this->argument( $arguments, $children, ( $key + $index + 1 ), ( $repeat + 1 ), $wrap, $last_argument );
 			}
 		} else {
-			if ( $repeat )
+			if ( $repeat ) {
 				$arguments .= str_repeat( '}', $repeat );
+			}
 		}
 
 		return $arguments;
