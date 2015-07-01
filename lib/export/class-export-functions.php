@@ -66,7 +66,7 @@ class Export_Functions extends Export_Base {
 				if ( isset( $data[0]['default_value'] ) ) {
 					$arguments = sprintf( '${1: ${2:%s} }', $data[0]['default_value'] );
 				} else {
-					$arguments = sprintf( ' ${1:%s} ', $data[0]['name'] );
+					$arguments = sprintf( ' ${1:\\%s} ', $data[0]['name'] );
 				}
 			} else {
 				// $arguments = sprintf( '${1: %s }', ( isset( $data[0]['default_value'] ) ? $data[0]['default_value'] : $data[0]['name'] ) );

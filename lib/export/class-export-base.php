@@ -135,7 +135,7 @@ class Export_Base {
 		if ( ! $data )
 			return false;
 
-		$filename = $this->directory . $args['name'] . '.sublime-completions';
+		$filename = $this->directory . strtolower( $args['name'] ) . '.sublime-completions';
 		if ( file_put_contents( $filename, $data ) ) {
 			return true;
 		}
