@@ -52,9 +52,9 @@ class Export_Functions extends Export_Base {
 	public function contents( $name, $arguments, $last_argument ) {
 		if ( empty( $arguments ) ) {
 			if ( 0 === strpos( $name, '__return_' ) )
-				return apply_filters( 'sublime_parse_function', sprintf( '%s${1:()${2:;}}${0:}', $name ), $name, $arguments );
+				return apply_filters( 'sublime_parse_function', sprintf( '%s${1:();}', $name ), $name, $arguments );
 
-			return apply_filters( 'sublime_parse_function', sprintf( '%s()${0:;}', $name ), $name, $arguments );
+			return apply_filters( 'sublime_parse_function', sprintf( '%s();', $name ), $name, $arguments );
 		}
 
 		return $this->parse_contents( $arguments, $name, $last_argument );
@@ -69,7 +69,6 @@ class Export_Functions extends Export_Base {
 					$arguments = sprintf( ' ${1:\\%s} ', $data[0]['name'] );
 				}
 			} else {
-				// $arguments = sprintf( '${1: %s }', ( isset( $data[0]['default_value'] ) ? $data[0]['default_value'] : $data[0]['name'] ) );
 				$arguments = '';
 			}
 		} else {
@@ -90,7 +89,7 @@ class Export_Functions extends Export_Base {
 
 		$arguments = apply_filters( 'sublime_parse_function_args', $arguments, $name, $data );
 
-		return apply_filters( 'sublime_parse_function', sprintf( '%s(%s)${0:;}', $name, $arguments ), $name, $arguments );
+		return apply_filters( 'sublime_parse_function', sprintf( '%s(%s);', $name, $arguments ), $name, $arguments );
 	}
 
 	public function argument( $arguments, $data, $index, $repeat = 0, $wrap = false, $last_argument ) {
