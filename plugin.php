@@ -53,9 +53,28 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 
 	/**
 	 * Used for change data in function arguments on export
+	 *
+	 * @param string $arguments all arguments with format snippet
+	 * @param string $name      function name
+	 * @param array  $data      array of arguments
+	 *
+	 * @return string all arguments with format snippet
 	 */
-	add_filter( 'sublime_parse_function_args', function( $completions, $name, $arguments ) {
-		return $completions;
+	add_filter( 'sublime_parse_function_args', function( $arguments, $name, $data ) {
+		return $arguments;
+	}, 10, 3 );
+
+	/**
+	 * Used for change function completion on export
+	 *
+	 * @param string $completion      function completion with format snippet
+	 * @param string $name            function name
+	 * @param array  $arguments       array of arguments
+	 *
+	 * @return string function completion with format snippet
+	 */
+	add_filter( 'sublime_parse_function', function( $completion, $name, $arguments ) {
+		return $completion;
 	}, 10, 3 );
 
 	/**
@@ -69,16 +88,6 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	 * Used for exclude private functions on export
 	 */
 	add_filter( 'sublime_exclude_private_functions', function ( $exclude, $post ) {
-		// if ( 0 === strpos( $post->post_title, '_' ) ) {
-		// 	$params_tags = get_post_meta( $post->ID, '_wp-parser_tags', true );
-		// 	$access      = array_column( wp_list_filter( $params_tags, array( 'name' => 'access' ) ), 'content', 'name' );
-
-		// 	if ( ! empty( $access ) ) {
-		// 		if ( in_array( 'private', array_values( $access ) ) )
-		// 			return true;
-		// 	}
-		// }
-
 		return $exclude;
 	}, 10, 2 );
 }
