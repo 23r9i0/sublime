@@ -44,6 +44,7 @@ class Export_Capabilities extends Export_Base {
 
 					if ( ! in_array( $capability, $contents ) ) {
 						$completions[] = array( 'trigger' => "{$capability}\tWP Capability", 'contents' => $capability );
+						++$this->count;
 					}
 
 					if ( in_array( $capability, $this->_super_admin_capabilities ) )
@@ -61,6 +62,7 @@ class Export_Capabilities extends Export_Base {
 
 			if ( ! in_array( 'unfiltered_upload', $contents ) ) {
 				$completions[] = array( 'trigger' => "unfiltered_upload\tWP Capability", 'contents' => 'unfiltered_upload' );
+				++$this->count;
 			}
 
 			/**
@@ -72,6 +74,7 @@ class Export_Capabilities extends Export_Base {
 				foreach ( $this->_super_admin_capabilities as $capability ) {
 					if ( ! in_array( $capability, $contents ) ) {
 						$completions[] = array( 'trigger' => "{$capability}\tWP Capability", 'contents' => $capability );
+						++$this->count;
 					}
 				}
 			}
