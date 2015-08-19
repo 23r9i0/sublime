@@ -72,11 +72,7 @@ class Export_Hooks extends Export_Base {
 			$output .= sprintf( '${%d:, ${%d:10}}', ++$index, ++$index );
 		}
 
-		return sprintf(
-			'add_%s( %s );',
-			$type,
-			$output
-		);
+		return sprintf( 'add_%s( %s );', $type, $output );
 	}
 
 	public function parse_name( $post_title ) {
