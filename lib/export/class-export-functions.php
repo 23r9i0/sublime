@@ -40,7 +40,7 @@ class Export_Functions extends Export_Base {
 		setup_postdata( $post );
 		$arguments = \WP_Parser\get_arguments();
 		wp_reset_postdata();
-
+		$arguments = apply_filters( 'sublime_parse_function_args', $arguments, $post->post_title );
 		return array(
 			'trigger'   => $post->post_title . "\tWP Function",
 			'contents'  => $this->contents( $post->post_title, $this->parse_args( $arguments ), end( $arguments ) ),
@@ -84,10 +84,11 @@ class Export_Functions extends Export_Base {
 				$index++;
 			}
 
-			$arguments .= ( isset( $data[0]['childrens'] ) ) ? ' }' : ' ';
+			if ( ! isset( $data[0]['childrens'] ) )
+				$arguments .= ' ';
 		}
 
-		$arguments = apply_filters( 'sublime_parse_function_args', $arguments, $name, $data );
+		$arguments = apply_filters( 'sublime_parse_function_contents', $arguments, $name, $data );
 
 		return apply_filters( 'sublime_parse_function', sprintf( '%s(%s);', $name, $arguments ), $name, $arguments );
 	}
@@ -122,12 +123,16 @@ class Export_Functions extends Export_Base {
 		}
 
 		if ( isset( $data['childrens'] ) ) {
+			$repeat++;
 			foreach ( $data['childrens'] as $key => $children ) {
-				$arguments = $this->argument( $arguments, $children, ( $key + $index + 1 ), ( $repeat + 1 ), $wrap, $last_argument );
+				$arguments = $this->argument( $arguments, $children, ++$index, $repeat, $wrap, $last_argument );
 			}
 		} else {
 			if ( $repeat ) {
-				$arguments .= str_repeat( '}', $repeat );
+				if ( $wrap && $data['name'] !== $last_argument['name'] )
+					$arguments .= str_repeat( '}', $repeat );
+				elseif ( $wrap )
+					$arguments .= ' }';
 			}
 		}
 
