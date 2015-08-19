@@ -52,6 +52,29 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	} );
 
 	/**
+	 * Used for change defaults arguments on export
+	 *
+	 * @param array  $arguments
+	 * @param string $name
+	 *
+	 * @return array $arguments
+	 */
+	add_filter( 'sublime_parse_function_args', function( $arguments, $name ) {
+		/**
+		 * fix required arguments domain, email and site_name
+		 * because this function add error if empty or if not email
+		 */
+		if ( 'populate_network' === $name ) {
+			foreach ( $arguments as $key => &$argument ) {
+				if ( in_array( $argument['name'], array( '$domain', '$email', '$site_name' ) ) )
+					unset( $argument['default_value'] );
+			}
+		}
+
+		return $arguments;
+	}, 10, 2 );
+
+	/**
 	 * Used for change data in function arguments on export
 	 *
 	 * @param string $arguments all arguments with format snippet
@@ -60,7 +83,11 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	 *
 	 * @return string all arguments with format snippet
 	 */
-	add_filter( 'sublime_parse_function_args', function( $arguments, $name, $data ) {
+	add_filter( 'sublime_parse_function_contents', function( $arguments, $name, $data ) {
+		// Add default constant file for speed :)
+		if ( in_array( $name, array( 'plugin_dir_path', 'plugin_dir_url', 'plugin_basename' ) ) )
+			return ' ${1:\__FILE__} ';
+
 		return $arguments;
 	}, 10, 3 );
 
