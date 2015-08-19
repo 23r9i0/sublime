@@ -86,7 +86,7 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	add_filter( 'sublime_parse_function_contents', function( $arguments, $name, $data ) {
 		// Add default constant file for speed :)
 		if ( in_array( $name, array( 'plugin_dir_path', 'plugin_dir_url', 'plugin_basename' ) ) )
-			return ' ${1:\__FILE__} ';
+			return ' ${1:__FILE__} ';
 
 		return $arguments;
 	}, 10, 3 );
