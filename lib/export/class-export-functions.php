@@ -97,7 +97,7 @@ class Export_Functions extends Export_Base {
 		$name          = isset( $data['default_value'] ) ? $data['default_value'] : sprintf( '\\%s', $data['name'] );
 		$first_element = $wrap ? 2 : 1;
 
-		if ( false === strpos( $data['name'], 'deprecated' ) ) {
+		if ( false === stripos( $data['name'], 'deprecated' ) ) {
 			if ( isset( $data['childrens'] ) ) {
 				if ( $first_element !== $index ) {
 					$arguments .= sprintf( '${%d:, ${%d:%s}', $index, ++$index, $name );
@@ -123,16 +123,18 @@ class Export_Functions extends Export_Base {
 		}
 
 		if ( isset( $data['childrens'] ) ) {
-			$repeat++;
 			foreach ( $data['childrens'] as $key => $children ) {
-				$arguments = $this->argument( $arguments, $children, ++$index, $repeat, $wrap, $last_argument );
+				$arguments = $this->argument( $arguments, $children, ++$index, ++$repeat, $wrap, $last_argument );
 			}
 		} else {
 			if ( $repeat ) {
-				if ( $wrap && $data['name'] !== $last_argument['name'] )
+				if ( $wrap && $data['name'] !== $last_argument['name'] ) {
 					$arguments .= str_repeat( '}', $repeat );
-				elseif ( $wrap )
+				} elseif ( $wrap ) {
 					$arguments .= ' }';
+				} elseif ( $data['name'] === $last_argument['name'] ) {
+					$arguments .= str_repeat( '}', $repeat );
+				}
 			}
 		}
 
