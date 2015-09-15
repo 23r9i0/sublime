@@ -65,10 +65,23 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 		 * because this function add error if empty or if not email
 		 */
 		if ( 'populate_network' === $name ) {
-			foreach ( $arguments as $key => &$argument ) {
+			foreach ( $arguments as &$argument ) {
 				if ( in_array( $argument['name'], array( '$domain', '$email', '$site_name' ) ) )
 					unset( $argument['default_value'] );
 			}
+
+			return $arguments;
+		}
+
+		// Add default constant file for speed :)
+		if ( in_array( $name, array( 'register_activation_hook', 'register_deactivation_hook', 'register_uninstall_hook' ) ) ) {
+			foreach ( $arguments as &$argument ) {
+				if ( '$file' === $argument['name'] )
+					$argument['default_value'] = '__FILE__';
+					break;
+			}
+
+			return $arguments;
 		}
 
 		return $arguments;
