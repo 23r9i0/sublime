@@ -42,6 +42,15 @@ class Export_Functions extends Export_Base {
 		wp_reset_postdata();
 		$arguments = apply_filters( 'sublime_parse_function_args', $arguments, $post->post_title );
 
+		if ( $last = array_pop( $arguments ) ) {
+			if ( ! $this->is_deprecated( $last ) ) {
+				$arguments[] = $last;
+			}
+		}
+
+		// if ( empty( $arguments ) )
+			// return false;
+
 		return array(
 			'trigger'   => $post->post_title . "\tWP Function",
 			'contents'  => $this->contents( $post->post_title, $this->parse_args( $arguments ) ),
@@ -104,14 +113,16 @@ class Export_Functions extends Export_Base {
 					$arguments .= sprintf( '${%d:%s}', $index, $name );
 				} else {
 					if ( $this->is_optional( $data ) ) {
-						$arguments .= sprintf( '${%d:, ${%d:%s}}', ++$index, ++$index, $name );
+						$arguments .= sprintf( '${%d:, ${%d:%s}}', $index, ++$index, $name );
+
 					} else {
 						$arguments .= sprintf( ', ${%d:%s}', $index, $name );
+
 					}
 				}
 			}
 		} else {
-			$arguments .= sprintf( '%s%s', ( preg_match( '/^(\$\{1: | )$/', $arguments ) ? ', ' : '' ), $name );
+			$arguments .= sprintf( '%s%s', ( preg_match( '/^(\$\{1: | )/', $arguments ) ? ', ' : '' ), $name );
 		}
 
 		if ( isset( $data['childrens'] ) ) {
@@ -155,6 +166,9 @@ class Export_Functions extends Export_Base {
 						$last['no_optional'] = true;
 						unset( $last['childrens'] );
 						$args = array_merge( $args, array( $last ), $this->revert_childrens( $childrens ), array( $current ) );
+					} else {
+						$args[] = $last;
+						$args[] = $current;
 					}
 				} else {
 					$args[] = $current;
