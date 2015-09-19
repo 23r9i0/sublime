@@ -84,7 +84,7 @@ class Export_Functions extends Export_Base {
 		} else {
 			$arguments = isset( $data[0]['childrens'] ) ? '${1: ' : ' ';
 
-			$index = 1;
+			$index = isset( $data[0]['childrens'] ) ? 1 : 0;
 			foreach ( $data as $key => $arg ) {
 				$arguments = $this->argument( $arguments, $arg, $index );
 				$index++;
@@ -110,13 +110,13 @@ class Export_Functions extends Export_Base {
 				}
 			} else {
 				if ( ' ' === $arguments ) {
-					$arguments .= sprintf( '${%d:%s}', $index, $name );
+					$arguments .= sprintf( '${%d:%s}', ++$index, $name );
 				} else {
 					if ( $this->is_optional( $data ) ) {
-						$arguments .= sprintf( '${%d:, ${%d:%s}}', $index, ++$index, $name );
+						$arguments .= sprintf( '${%d:, ${%d:%s}}', ++$index, ++$index, $name );
 
 					} else {
-						$arguments .= sprintf( ', ${%d:%s}', $index, $name );
+						$arguments .= sprintf( ', ${%d:%s}', ++$index, $name );
 
 					}
 				}
