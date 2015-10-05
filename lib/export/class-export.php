@@ -17,7 +17,6 @@ class Export {
 		'actions',
 		'filters',
 		'classes',
-
 	);
 
 	private $_type = 'all';
