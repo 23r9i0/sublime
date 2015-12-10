@@ -4,9 +4,17 @@ sublime is the parser for creating WordPress completions, use [WP Parser][1]
 
 # Install
 
-Via Composer into your WordPress plugins directory:
+Clone the repository into your WordPress plugins directory:
 
-	composer create-project 23r9i0/sublime:dev-master --no-dev
+```bash
+git clone git@github.com:23r9i0/sublime.git 
+```
+
+After that install the dependencies using composer in the parser directory:
+
+```bash
+composer install
+```
 
 
 ## Running
