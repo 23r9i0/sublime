@@ -2,5 +2,5 @@
 
 for file_sh in update.sh pkg.sh
 do
-	sh ./$file_sh
+	/bin/bash ./$file_sh
 done
