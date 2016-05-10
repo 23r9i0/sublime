@@ -143,7 +143,6 @@ function main() {
       ;;
   esac
 
-  echo $wp_install_subl
   select_type_script $wp_user $wp_install_subl
 }
 
