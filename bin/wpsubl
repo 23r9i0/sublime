@@ -13,7 +13,7 @@ function wp_subl_update() {
 function wp_subl_package() {
   local wp_type_completion
 
-  echo "Select type of completions:"
+  echo "Select type of completions: (Default: first option)"
   # echo "Type multiple options separate for one space"
   echo "1. All"
   echo "2. Constants"
@@ -23,7 +23,6 @@ function wp_subl_package() {
   echo "6. Actions"
   echo "7. Filters"
   echo "8. Classes"
-  echo "Default: all"
   echo ""
   read -p "Type: " wp_type_completion
   [ "" != "$wp_type_completion" ] || wp_type_completion=1
@@ -61,7 +60,7 @@ function select_type_script() {
   echo "3. Package: Generate Sublime Text Completions"
   echo "4. Exit"
 
-  read -p "Enter choice [ 1 - 4 ] " choice
+  read -p "Enter number [ 1 - 4 ]: " choice
   case $choice in
     1 )
       wp_subl_update $1
@@ -91,29 +90,33 @@ function main() {
   read -p "Run defaults? (y|n|h): " default_options
   case "$default_options" in
     h )
-            echo ""
-            echo "################################# Defaults ########################################"
-            echo "#                                                                                 #"
-            echo "#  User ID: 1                                                                     #"
-            echo "#  Directory to export: ~/.config/sublime-text-3/Packages/sublime-text-wordpress  #"
-            echo "#                                                                                 #"
-            echo "############################ Custom selections ####################################"
-            echo "#                                                                                 #"
-            echo "#  User ID: your id|default                                                       #"
-            echo "#  Directory to export: your directory                                            #"
-            echo "#                                                                                 #"
-            echo "#  This script verifies that the directory exists                                 #"
-            echo "#  and asks if you want to continue                                               #"
-            echo "#                                                                                 #"
-            echo "############################ Custom selections ####################################"
-            echo ""
-            main
-          ;;
+      echo ""
+      echo "###################################################################################"
+      echo "#  Defaults #######################################################################"
+      echo "###################################################################################"
+      echo "#                                                                                 #"
+      echo "#  User ID: 1                                                                     #"
+      echo "#  Directory to export: ~/.config/sublime-text-3/Packages/sublime-text-wordpress  #"
+      echo "#                                                                                 #"
+      echo "###################################################################################"
+      echo "#  Custom selections ##############################################################"
+      echo "###################################################################################"
+      echo "#                                                                                 #"
+      echo "#  User: your user id or login name, default User ID "1"                          #"
+      echo "#  Directory to export: your directory                                            #"
+      echo "#                                                                                 #"
+      echo "#  This script verifies that the directory exists                                 #"
+      echo "#  and asks if you want to continue                                               #"
+      echo "#                                                                                 #"
+      echo "###################################################################################"
+      echo ""
+      main
+    ;;
     y )
       ;;
     n )
       echo "Define your user"
-      read -p "User ID: " wp_custom_user
+      read -p "User ID or login name: " wp_custom_user
       if [[ "" != "$wp_custom_user" ]]; then
         wp_user=$wp_custom_user
       fi
