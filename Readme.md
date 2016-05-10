@@ -19,12 +19,15 @@ composer install
 
 ## Running
 
-* Activate this plugin
-	> On activation generate symlink into home/bin directory (only in linux, tested inside ubuntu)
+### Linux
+
+* Activate this plugin, On activation generate symlink into home/bin directory and deactivation remove symlink (tested on ubuntu)
 * Open Terminal inside root directory of Wordpress Installation
 * Run wpsubl
 * ...
 
+### Other
 
+...
 
 [1]:https://github.com/WordPress/phpdoc-parser
