@@ -86,7 +86,7 @@ function select_type_script() {
 
 function main() {
   local wp_user=1
-  local wp_install_subl="${HOME}/.config/sublime-text-3/Packages/sublime-text-wordpress"
+  local wp_install_subl="${HOME}/.config/sublime-text-3/Packages/sublime-text-wordpress/completions"
 
   read -p "Run defaults? (y|n|h): " default_options
   case "$default_options" in
