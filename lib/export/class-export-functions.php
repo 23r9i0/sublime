@@ -200,6 +200,9 @@ class Export_Functions extends Export_Base {
 	}
 
 	public function is_optional( $arg ) {
-		return ( ( isset( $arg['default_value'] ) || ( isset( $arg['desc'] ) && 0 === stripos( $arg['desc'], 'optional' ) ) ) && ! $this->is_deprecated( $arg ) && ! isset( $arg['no_optional'] ) );
+		return (
+			( isset( $arg['default_value'] ) || ( isset( $arg['desc'] ) && 0 === stripos( $arg['desc'], 'optional' ) ) ) &&
+			! $this->is_deprecated( $arg ) && ! isset( $arg['no_optional'] )
+		);
 	}
 }

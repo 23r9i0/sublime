@@ -16,8 +16,7 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	/**
 	 * Initialize this plugin
 	 */
-	global $sublime;
-	$sublime = new Sublime\Plugin();
+	new Sublime\Plugin();
 
 	add_filter( 'wp_parser_skip_duplicate_hooks', '__return_true' );
 
@@ -130,4 +129,45 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	add_filter( 'sublime_exclude_private_functions', function ( $exclude, $post ) {
 		return $exclude;
 	}, 10, 2 );
+
+	/**
+	 * Used for exclude item after import
+	 *
+	 * @return bool $import true for import item or false for exclude, default true
+	 */
+	add_filter( 'wp_parser_pre_import_item', function( $import, $data, $parent_post_id, $import_ignored, $arg_overrides ) {
+		// stripos - php4 compatibility file: wp-includes/class-pop3.php
+		if ( 'stripos' === $data['name'] )
+			return false;
+
+		return $import;
+	}, 10, 5 );
+
+
+	register_activation_hook( __FILE__, function() {
+		if ( 'linux' === strtolower( PHP_OS ) ) {
+			$user = posix_getpwuid( posix_getuid() );
+			$home_directory = isset( $user['dir'] ) ? $user['dir'] : '';
+			if ( $home_directory && is_dir( $home_directory . '/bin' ) ) {
+				$user_bin = $home_directory . '/bin/wpsubl';
+				if ( false !== stream_resolve_include_path( $user_bin ) )
+					unlink( $user_bin );
+
+				symlink( __DIR__ . '/bin/wpsubl', $home_directory . '/bin/wpsubl' );
+			}
+		}
+	} );
+
+	register_deactivation_hook( __FILE__, function() {
+		if ( 'linux' === strtolower( PHP_OS ) ) {
+			$user = posix_getpwuid( posix_getuid() );
+			$home_directory = isset( $user['dir'] ) ? $user['dir'] : '';
+			if ( $home_directory && is_dir( $home_directory . '/bin' ) ) {
+				$user_bin = $home_directory . '/bin/wpsubl';
+				if ( false !== stream_resolve_include_path( $user_bin ) )
+					unlink( $user_bin );
+			}
+		}
+	} );
+
 }

@@ -36,7 +36,7 @@ class Export_Base {
 		}
 
 		if ( ! is_dir( $this->directory ) )
-			mkdir( $this->directory );
+			mkdir( $this->directory, 0777, true );
 
 		if ( isset( $this->post_type ) ) {
 			$this->elements = $this->_get_posts_data( $this->post_type );
