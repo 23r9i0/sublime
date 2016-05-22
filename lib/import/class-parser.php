@@ -1,43 +1,47 @@
 <?php
+namespace Sublime;
+
 /**
  *
  */
-
-namespace Sublime;
 
 class Parser {
 
 	public static function set( $directory ) {
 		$files           = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $directory ) );
 		$list            = array();
-		$exclude_plugins = apply_filters( 'sublime_exclude_plugins', false );
+		/**
+		 * Include Plugins by name folder, by default Exclude Plugins Folder
+		 */
 		$include_plugins = apply_filters( 'sublime_include_plugins', array() );
+		$include_plugins = is_array( $include_plugins ) ? $include_plugins : array( $include_plugins );
+
+		/**
+		 * Exclude files to import, use file name only
+		 */
+		$exclude_files = apply_filters( 'sublime_exclude_files', array() );
+		$exclude_files = is_array( $exclude_files ) ? $exclude_files : array( $exclude_files );
 
 		try {
 			foreach ( $files as $file ) {
-				if (
-					'php' !== $file->getExtension() ||
-					'wp-config.php' === $file->getFilename() ||
-					'wp-config-backup.php' === $file->getFilename()
-				)
+				if ( 'php' !== $file->getExtension() )
 					continue;
 
-				$path = $file->getPathname();
+				if ( in_array( $file->getFilename(), $exclude_files ) )
+					continue;
 
-				if ( $exclude_plugins ) {
-					if ( false !== stripos( str_replace( '\\', '/', $path ), 'wp-content/plugins' ) ) {
-						if ( count( $include_plugins ) ) {
-							foreach ( $include_plugins as $include_plugin ) {
-								if ( false !== stripos( $path, $include_plugin ) ) {
-									$list[] = $path;
-								}
-							}
+				$path = str_replace( '\\', '/', $file->getPathname() );
+
+				if ( false !== strpos( $path, 'wp-content/plugins/sublime/missing' ) ) {
+					$list[] = $path;
+				} elseif ( false !== strpos( $path, 'wp-content/plugins' ) ) {
+					foreach ( $include_plugins as $include_plugin ) {
+						if ( false !== strpos( $path, $include_plugin ) ) {
+							$list[] = $path;
 						}
-					} else {
-						$list[] = $path;
 					}
 				} else {
-						$list[] = $path;
+					$list[] = $path;
 				}
 			}
 
@@ -56,16 +60,16 @@ class Parser {
 
 		foreach ( $files as $filename ) {
 			$file = new \WP_Parser\File_Reflector( $filename );
+			$path = str_replace( '\\', '/', substr( $filename, strlen( $root ) ) );
+			$path = ltrim( $path, '/' );
 
-			$path = ltrim( substr( $filename, strlen( $root ) ), DIRECTORY_SEPARATOR );
 			$file->setFilename( $path );
-
 			$file->process();
 
 			// TODO proper exporter
 			$out = array(
 				'file' => \WP_Parser\export_docblock( $file ),
-				'path' => str_replace( DIRECTORY_SEPARATOR, '/', $file->getFilename() ),
+				'path' => $file->getFilename(),
 				'root' => $root,
 			);
 

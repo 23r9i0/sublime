@@ -1,13 +1,16 @@
 # sublime
 
-sublime is the parser for creating WordPress completions, use [WP Parser][1]
+sublime is the parser for creating WordPress completions, use [WordPress PHPDoc Parser](https://github.com/WordPress/phpdoc-parser)
 
-# Install
+## Requirements
+* PHP 5.5+
+* [Composer](https://getcomposer.org/)
+* [WP CLI](http://wp-cli.org/)
 
 Clone the repository into your WordPress plugins directory:
 
 ```bash
-git clone git@github.com:23r9i0/sublime.git
+git clone https://github.com/23r9i0/sublime.git
 ```
 
 After that install the dependencies using composer in the parser directory:
@@ -16,18 +19,18 @@ After that install the dependencies using composer in the parser directory:
 composer install
 ```
 
-
 ## Running
 
-### Linux
+In your site's directory
 
-* Activate this plugin, On activation generate symlink into home/bin directory and deactivation remove symlink (tested on ubuntu)
-* Open Terminal inside root directory of Wordpress Installation
-* Run wpsubl
-* ...
+* Create or update import:
+	`wp subl create /path/to/source/code --user=<id|login>`
 
-### Other
+* Create or update completions:
+	`wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|functions|hooks|actions|filters|classes>`
 
-...
 
-[1]:https://github.com/WordPress/phpdoc-parser
+# Notes
+
+* Use `sublime/config.php` file to change defaults filters. Optional
+* Use folder `sublime/missing` for include missing, example WP_HOME constant, this plugin auto load all files inside this folder on import

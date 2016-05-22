@@ -17,6 +17,7 @@ class Export {
 		'actions',
 		'filters',
 		'classes',
+		'methods',
 	);
 
 	private $_type = 'all';
@@ -24,10 +25,10 @@ class Export {
 	private $_errors = array();
 
 	public function __construct( $directory, $type = 'all' ) {
+		$this->directory = $directory;
+
 		if ( in_array( $type, $this->_types ) )
 			$this->_type = $type;
-
-		$this->directory = $directory;
 	}
 
 	public function get_errors() {
@@ -41,10 +42,8 @@ class Export {
 			}
 		} elseif ( 'all' === $this->_type ) {
 			foreach ( $this->_types as $type ) {
-				if ( 'hooks' === $type )
-					continue;
-
-				$this->_process( $type );
+				if ( 'hooks' !== $type )
+					$this->_process( $type );
 			}
 		} else {
 			$this->_process( $this->_type );
@@ -79,6 +78,15 @@ class Export {
 					$this->_errors[] = 'Error Processing Classes. :(';
 				} else {
 					WP_CLI::line( 'Created Classes Completions.' );
+				}
+				break;
+
+			case 'methods':
+				$methods = new Export_Methods( $this->directory );
+				if ( ! $methods->generate() ) {
+					$this->_errors[] = 'Error Processing Methods. :(';
+				} else {
+					WP_CLI::line( 'Created Methods Completions.' );
 				}
 				break;
 

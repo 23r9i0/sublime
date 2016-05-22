@@ -18,7 +18,10 @@ class Export_Constants extends Export_Base {
 		}
 
 		$args = array(
-			'template' => array( 'comment' => 'WordPress Constants' ),
+			'template' => array(
+				'scope'   => 'source.php - string',
+				'comment' => 'WordPress Constants',
+			),
 			'post_type' => $this->_post_type,
 			'name' => 'Constants',
 		);

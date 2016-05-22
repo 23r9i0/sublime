@@ -11,7 +11,7 @@ class Plugin extends \WP_Parser\Plugin {
 
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ), 12 );
-		add_action( 'init', array( $this, 'register_metaboxes' ), 13 );
+		// add_action( 'init', array( $this, 'register_metaboxes' ), 13 );
 	}
 
 	public function register_post_types() {
@@ -27,7 +27,6 @@ class Plugin extends \WP_Parser\Plugin {
 		);
 
 		if ( ! post_type_exists( 'wp-parser-constant' ) ) {
-
 			register_post_type(
 				'wp-parser-constant',
 				array(

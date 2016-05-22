@@ -37,7 +37,7 @@ class Export_Capabilities extends Export_Base {
 		$completions = $contents = array();
 
 		$is_super_admin_exists = 0;
-		if ( isset( $this->_wp_roles ) && count( $this->_wp_roles ) ) {
+		if ( isset( $this->_wp_roles ) ) {
 			foreach ( $this->_wp_roles as $name => $capabilities ) {
 				foreach ( $capabilities as $key => $capability ) {
 					$contents = array_column( $completions, 'contents' );

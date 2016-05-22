@@ -26,10 +26,9 @@ class Export_Base {
 		if ( ! isset( $this->name ) )
 			$this->name = 'Undefined';
 
-		if ( isset( $this->template ) )
-			$this->template = wp_parse_args( $this->template, $this->base_template );
+		$this->template = wp_parse_args( $this->template, $this->base_template );
 
-		if ( isset( $this->directory ) ) {
+		if ( ! empty( $this->directory ) ) {
 			$this->directory = trailingslashit( $this->directory );
 		} else {
 			$this->directory = plugin_dir_path( dirname( __DIR__ ) ) . 'package/';
@@ -38,9 +37,8 @@ class Export_Base {
 		if ( ! is_dir( $this->directory ) )
 			mkdir( $this->directory, 0777, true );
 
-		if ( isset( $this->post_type ) ) {
+		if ( isset( $this->post_type ) )
 			$this->elements = $this->_get_posts_data( $this->post_type );
-		}
 	}
 
 	public function generate() {
@@ -49,6 +47,10 @@ class Export_Base {
 		if ( count( $completions ) ) {
 			$this->template['comment'] = sprintf( '%s %s', $this->count, $this->template['comment'] );
 			$this->template['completions'] = $completions;
+			/**
+			 * Used for change default scope
+			 */
+			$this->template['scope'] = apply_filters( 'sublime_export_change_scope', $this->template['scope'], $this->name );
 			$file = $this->generate_completions_file( array(
 				'name' => $this->name,
 				'data' => $this->template
@@ -69,26 +71,11 @@ class Export_Base {
 			'orderby'        => 'title',
 			'order'          => 'ASC',
 			'tax_query'      => array(
-				'relation' => 'OR',
 				array(
 					'taxonomy' => 'wp-parser-package',
 					'field'    => 'slug',
 					'terms'    => array(
-						'deprecated',
 						'php'
-					),
-					'operator' => 'NOT IN',
-				),
-				array(
-					'taxonomy' => 'wp-parser-source-file',
-					'field'    => 'slug',
-					'terms'    => array(
-						'wp-admin_includes_deprecated-php',
-						'wp-admin_includes_ms-deprecated-php',
-						'wp-includes_deprecated-php',
-						'wp-includes_ms-deprecated-php',
-						'wp-includes_pluggable-deprecated-php',
-						'wp-includes_compat-php',
 					),
 					'operator' => 'NOT IN',
 				)

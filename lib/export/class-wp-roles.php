@@ -31,8 +31,7 @@ class WP_Roles extends \WP_Roles {
 	}
 
 	/**
-	 * Get Roles and Capabilities
-	 * in \WP_Roles
+	 * Get Roles and Capabilities in \WP_Roles
 	 *
 	 * @return array
 	 */
