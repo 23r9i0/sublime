@@ -33,4 +33,6 @@ In your site's directory
 # Notes
 
 * Use `sublime/config.php` file to change defaults filters. Optional
-* Use folder `sublime/missing` for include missing, example WP_HOME constant, this plugin auto load all files inside this folder on import
+* Use folder `sublime/missing` for include missing,
+  by default if defined constants.php for include by example WP_HOME constant,
+  this plugin auto load all files inside this folder on import
