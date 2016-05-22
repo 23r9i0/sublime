@@ -31,7 +31,7 @@ class Export_Classes extends Export_Base {
 
 	public function generate_completion( $post ) {
 		return array(
-				'trigger' => sprintf( '%s\tWP Class', $post->post_title ),
+				'trigger' => sprintf( "%s\tWP Class", $post->post_title ),
 				'contents' => $post->post_title
 			);
 	}
