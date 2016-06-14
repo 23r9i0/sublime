@@ -24,9 +24,11 @@ composer install
 In your site's directory
 
 * Create or update import:
+
 	`wp subl create /path/to/source/code --user=<id|login>`
 
 * Create or update completions:
+
 	`wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|functions|hooks|actions|filters|classes>`
 
 
