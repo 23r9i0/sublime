@@ -25,16 +25,18 @@ In your site's directory
 
 * Create or update import:
 
-  `wp subl create /path/to/source/code --user=<id|login>`
+```bash
+wp subl create /path/to/source/code --user=<id|login>
+```
 
 * Create or update completions:
 
-  `wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|functions|hooks|actions|filters|classes>`
+```bash
+wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|functions|hooks|actions|filters|classes>
+```
 
 
 # Notes
 
 * Use `sublime/config.php` file to change defaults filters. Optional
-* Use folder `sublime/missing` for include missing,
-  by default if defined constants.php for include by example WP_HOME constant,
-  this plugin auto load all files inside this folder on import
+* Use folder `sublime/missing` for include missing, by default if defined constants.php for include by example WP_HOME constant, this plugin auto load all files inside this folder on import
