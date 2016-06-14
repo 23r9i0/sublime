@@ -9,8 +9,8 @@ class Export_Hooks_Actions extends Export_Hooks {
 
 	public function __construct( $directory = '' ) {
 		$args = array(
-			'template'  => array( 'comment' => 'WordPress Actions' ),
-			'name'      => 'Actions',
+			'template' => array( 'comment' => 'WordPress Actions' ),
+			'name'     => 'Actions',
 		);
 
 		parent::__construct( $directory, $args );
@@ -21,7 +21,7 @@ class Export_Hooks_Actions extends Export_Hooks {
 		if ( empty( $hook_type ) )
 			return false;
 
-		if ( 'action' !== $hook_type )
+		if ( 0 !== strncmp( 'action', $hook_type, 6 ) )
 			return false;
 
 		$arguments = array();
@@ -30,7 +30,7 @@ class Export_Hooks_Actions extends Export_Hooks {
 		wp_reset_postdata();
 
 		$completion = array( array(
-			'trigger'   => sprintf( 'add_%s-%s', $hook_type, $post->post_title . "\tWP Action" ),
+			'trigger'   => sprintf( 'add_action-%s', $post->post_title . "\tWP Action" ),
 			'contents'  => $this->parse_contents( $post, $arguments, 'action' ),
 			// 'hook_type' => $hook_type,
 			// 'arguments' => $arguments,
@@ -38,7 +38,7 @@ class Export_Hooks_Actions extends Export_Hooks {
 
 		if ( false === strpos( $post->post_title, '{$' ) ) {
 			$completion[] = array(
-				'trigger' => sprintf( "%s\tWP Action Name", $post->post_title ),
+				'trigger'  => sprintf( "%s\tWP Action Name", $post->post_title ),
 				'contents' => $post->post_title,
 			);
 		}

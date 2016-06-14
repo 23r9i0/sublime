@@ -9,8 +9,8 @@ class Export_Hooks_Filters extends Export_Hooks {
 
 	public function __construct( $directory = '' ) {
 		$args = array(
-			'template'  => array( 'comment' => 'WordPress Filters' ),
-			'name'      => 'Filters',
+			'template' => array( 'comment' => 'WordPress Filters' ),
+			'name'     => 'Filters',
 		);
 
 		parent::__construct( $directory, $args );
@@ -21,7 +21,7 @@ class Export_Hooks_Filters extends Export_Hooks {
 		if ( empty( $hook_type ) )
 			return false;
 
-		if ( 'filter' !== $hook_type )
+		if ( 0 !== strncmp( 'filter', $hook_type, 6 ) )
 			return false;
 
 		$arguments = array();
@@ -30,15 +30,15 @@ class Export_Hooks_Filters extends Export_Hooks {
 		wp_reset_postdata();
 
 		$completion = array( array(
-			'trigger'   => sprintf( 'add_%s-%s', $hook_type, $post->post_title . "\tWP Filter" ),
+			'trigger'   => sprintf( 'add_filter-%s', $post->post_title . "\tWP Filter" ),
 			'contents'  => $this->parse_contents( $post, $arguments, 'filter' ),
-			// 'hook_type' => $hook_type,
+			'hook_type' => $hook_type,
 			// 'arguments' => $arguments,
 		) );
 
 		if ( false === strpos( $post->post_title, '{$' ) ) {
 			$completion[] = array(
-				'trigger' => sprintf( "%s\tWP Filter Name", $post->post_title ),
+				'trigger'  => sprintf( "%s\tWP Filter Name", $post->post_title ),
 				'contents' => $post->post_title,
 			);
 		}
