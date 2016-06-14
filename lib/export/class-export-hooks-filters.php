@@ -32,7 +32,7 @@ class Export_Hooks_Filters extends Export_Hooks {
 		$completion = array( array(
 			'trigger'   => sprintf( 'add_filter-%s', $post->post_title . "\tWP Filter" ),
 			'contents'  => $this->parse_contents( $post, $arguments, 'filter' ),
-			'hook_type' => $hook_type,
+			// 'hook_type' => $hook_type,
 			// 'arguments' => $arguments,
 		) );
 
