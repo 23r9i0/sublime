@@ -78,14 +78,14 @@ class Export_Hooks extends Export_Base {
 	public function parse_name( $post_title ) {
 		preg_match_all('/(\{\$)?[^\{\$\}]+(\})?/', $post_title, $matches );
 		$matches = array_map( function( $a ) {
-			return str_replace( array( '$', '{', '}' ), array( '\$', '\{', '\}' ), $a );
+			return str_replace( array( '$', '{', '}' ), array( '\$', '' ), $a );
 		}, $matches[0] );
 
 		$index = 0;
 		$name = '';
 		foreach ( $matches as $match ) {
 			if ( false !== strpos( $match, '\\' ) ) {
-				$name .= sprintf( '${%d:%s}', ++$index, $match );
+				$name .= sprintf( '${%d:{\{${%d:%s}\}}', ++$index, ++$index, $match );
 			} else {
 				$name .= $match;
 			}
