@@ -1,14 +1,12 @@
 <?php
 /**
  * @package sublime
- *
- * @since 1.1
  */
 
 /**
  * This filter is documented in lib/class-command.php
  */
-add_filter( 'sublime_create_phpdoc_output_cache', '__return_true' );
+add_filter( 'sublime_create_phpdoc_output_cache', '__return_false' );
 
 /**
  * This filter is documented in lib/class-command.php
@@ -18,7 +16,7 @@ add_filter( 'sublime_delete_phpdoc_output_cache', '__return_true' );
 /**
  * This filter is documented in lib/class-command.php
  */
-add_filter( 'sublime_delete_import_before_create', '__return_true' );
+add_filter( 'sublime_delete_import_before_create', '__return_false' );
 
 /**
  * This filter is documented in lib/import/class-importer.php
