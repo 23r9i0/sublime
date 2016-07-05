@@ -114,7 +114,6 @@ class Command extends \WP_Parser\Command {
 				$output = array_merge( $output, Parser::get( $helpers, $helper_directory ) );
 		}
 
-		file_put_contents( __DIR__ . '/output.json', json_encode( $output, JSON_PRETTY_PRINT ) );
 		return $output;
 	}
 
