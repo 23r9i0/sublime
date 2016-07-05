@@ -45,6 +45,7 @@ add_filter( 'sublime_include_plugins', function ( $plugins ) {
 add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 	$exclude_files = array_merge( $exclude_files, array(
 		'wp-config.php',        // Exclude in case exists personal data
+		'wp-config-sample.php', // Exclude in case exists
 		'wp-config-backup.php', // plugin wp-viewer-log generate copy of wp-config.php
 	) );
 
@@ -95,9 +96,23 @@ add_filter( 'sublime_export_default_arguments', function( $arguments, $name ) {
 	// Add default __FILE__ constant for speed completion :)
 	if ( in_array( $name, array( 'register_activation_hook', 'register_deactivation_hook', 'register_uninstall_hook' ) ) ) {
 		foreach ( $arguments as &$argument ) {
-			if ( '$file' === $argument['name'] )
+			if ( '$file' === $argument['name'] ) {
 				$argument['default_value'] = '__FILE__';
 				break;
+			}
+		}
+
+		return $arguments;
+	}
+
+	// Add array() to default value because WordPress convert to array
+	if ( in_array( $name, array( 'post_class', 'get_post_class' ) ) ) {
+		foreach ( $arguments as &$argument ) {
+			if ( '$class' === $argument['name'] ) {
+				$argument['default_value'] = 'array()';
+				break;
+			}
+
 		}
 
 		return $arguments;
@@ -128,6 +143,14 @@ add_filter( 'sublime_export_function_arguments_completion', function( $arguments
 	// Add default constant __FILE__ for speed :)
 	if ( in_array( $name, array( 'plugin_dir_path', 'plugin_dir_url', 'plugin_basename' ) ) )
 		return ' ${1:__FILE__} ';
+
+	// Add default constant __FILE__ for speed :)
+	if ( 'plugins_url' === $name )
+		return str_replace( '${4:\'\'}', '${4:__FILE__}', $arguments );
+
+	// Replace completions for speed and more compressible :)
+	if ( in_array( $name, array( 'post_class', 'get_post_class' ) ) )
+		return str_replace( array( 'array()', '${3:, ${4:null' ), array( 'array( ${3:\$class} )', '${4:, ${5:\$post_id' ), $arguments );
 
 	return $arguments;
 }, 10, 3 );
