@@ -97,7 +97,7 @@ class Importer extends \WP_Parser\Importer {
 
 		foreach ( $file['functions'] as $function ) {
 			$this->import_function( $function, 0, $import_ignored );
-			$count ++;
+			$count++;
 
 			if ( ! $skip_sleep && 0 == $count % 10 ) { // TODO figure our why are we still doing this
 				sleep( 3 );
@@ -106,7 +106,7 @@ class Importer extends \WP_Parser\Importer {
 
 		foreach ( $file['classes'] as $class ) {
 			$this->import_class( $class, $import_ignored );
-			$count ++;
+			$count++;
 
 			if ( ! $skip_sleep && 0 == $count % 10 ) {
 				sleep( 3 );
@@ -115,7 +115,7 @@ class Importer extends \WP_Parser\Importer {
 
 		foreach ( $file['hooks'] as $hook ) {
 			$this->import_hook( $hook, 0, $import_ignored );
-			$count ++;
+			$count++;
 
 			if ( ! $skip_sleep && 0 == $count % 10 ) {
 				sleep( 3 );
@@ -124,7 +124,7 @@ class Importer extends \WP_Parser\Importer {
 
 		foreach ( $file['constants'] as $constant ) {
 			$this->import_constant( $constant, 0, $import_ignored );
-			$count ++;
+			$count++;
 
 			if ( ! $skip_sleep && 0 == $count % 10 ) {
 				sleep( 3 );
@@ -156,6 +156,55 @@ class Importer extends \WP_Parser\Importer {
 	}
 
 	/**
+	 * Create a post for a hook
+	 *
+	 * @param array $data           Hook.
+	 * @param int   $parent_post_id Optional; post ID of the parent (function) this item belongs to. Defaults to zero (no parent).
+	 * @param bool  $import_ignored Optional; defaults to false. If true, hooks marked `@ignore` will be imported.
+	 * @return bool|int Post ID of this hook, false if any failure.
+	 */
+	public function import_hook( array $data, $parent_post_id = 0, $import_ignored = false ) {
+		/**
+		 * Filter whether to skip parsing duplicate hooks.
+		 *
+		 * "Duplicate hooks" are characterized in WordPress core by a preceding DocBlock comment
+		 * including the phrases "This action is documented in" or "This filter is documented in".
+		 *
+		 * Passing a truthy value will skip the parsing of duplicate hooks.
+		 *
+		 * @param bool $skip Whether to skip parsing duplicate hooks. Default false.
+		 */
+		$skip_duplicates = apply_filters( 'wp_parser_skip_duplicate_hooks', false );
+
+		if ( $skip_duplicates ) {
+			/**
+			 * Check external by example Akimet plugin not use WordPress DocBlock comment
+			 */
+			if ( apply_filters( 'sublime_skip_duplicate_by_name', false, $data ) )
+				return false;
+
+			/**
+			 * Use regex beacuse some hooks not use WordPress DockBlock comment
+			 */
+			if ( preg_match( '/^This (filter|action).*documented in/', $data['doc']['description'] ) )
+				return false;
+
+			if ( '' === $data['doc']['description'] && '' === $data['doc']['long_description'] )
+				return false;
+		}
+
+		$hook_id = $this->import_item( $data, $parent_post_id, $import_ignored, array( 'post_type' => $this->post_type_hook ) );
+
+		if ( ! $hook_id ) {
+			return false;
+		}
+
+		update_post_meta( $hook_id, '_wp-parser_hook_type', $data['type'] );
+
+		return $hook_id;
+	}
+
+	/**
 	 * Create a post for an item (a class or a function).
 	 *
 	 * Anything that needs to be dealt identically for functions or methods should go in this function.
@@ -174,7 +223,6 @@ class Importer extends \WP_Parser\Importer {
 
 		$is_new_post = true;
 		$slug        = sanitize_title( str_replace( '::', '-', $data['name'] ) );
-
 		$post_data   = wp_parse_args(
 			$arg_overrides,
 			array(
@@ -239,9 +287,7 @@ class Importer extends \WP_Parser\Importer {
 		// Look for an existing post for this item
 		$existing_post_id = $wpdb->get_var( $wpdb->prepare(
 			"SELECT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = %s AND post_parent = %d LIMIT 1",
-			$slug,
-			$post_data['post_type'],
-			(int) $parent_post_id
+			$slug, $post_data['post_type'], (int) $parent_post_id
 		) );
 
 		// If the file or this items is deprecated not import, if exists deleted
@@ -302,15 +348,15 @@ class Importer extends \WP_Parser\Importer {
 		/**
 		 * Filter an import item's post data before it is updated or inserted.
 		 *
-		 * @param array       $post_data        Array of post data.
-		 * @param string|null $existing_post_id ID if the post already exists, null otherwise.
+		 * @param array   $post_data          Array of post data.
+		 * @param array   $existing_post_id   ID if the post already exists, empty otherwise.
 		 */
 		$post_data = apply_filters( 'wp_parser_import_item_post_data', $post_data, $existing_post_id );
 
 		// Insert/update the item post
 		if ( ! empty( $existing_post_id ) ) {
-			$is_new_post     = false;
-			$post_id = $post_data['ID'] = (int) $existing_post_id;
+			$is_new_post        = false;
+			$post_id            = $post_data['ID'] = (int) $existing_post_id;
 			$post_needed_update = array_diff_assoc( sanitize_post( $post_data, 'db' ), get_post( $existing_post_id, ARRAY_A, 'db' ) );
 			if ( $post_needed_update ) {
 				$post_id = wp_update_post( wp_slash( $post_data ), true );
@@ -318,6 +364,7 @@ class Importer extends \WP_Parser\Importer {
 		} else {
 			$post_id = wp_insert_post( wp_slash( $post_data ), true );
 		}
+
 		$anything_updated = array();
 
 		if ( ! $post_id || is_wp_error( $post_id ) ) {

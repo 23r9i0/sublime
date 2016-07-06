@@ -56,64 +56,64 @@ class Export {
 		switch ( $type ) {
 			case 'capabilities':
 				$capabilities = new Export_Capabilities( $this->directory );
-				if ( ! $capabilities->generate() ) {
+				if ( false === ( $count = $capabilities->generate() ) ) {
 					$this->_errors[] = 'Error Processing Capabilities. :(';
 				} else {
-					WP_CLI::line( 'Created Capabilities Completions.' );
+					WP_CLI::line( sprintf( 'Created %s Capabilities Completions.', $count ) );
 				}
 				break;
 
 			case 'constants':
 				$constants = new Export_Constants( $this->directory );
-				if ( ! $constants->generate() ) {
+				if ( false === ( $count = $constants->generate() ) ) {
 					$this->_errors[] = 'Error Processing Constants. :(';
 				} else {
-					WP_CLI::line( 'Created Constants Completions.' );
+					WP_CLI::line( sprintf( 'Created %s Constants Completions.', $count ) );
 				}
 				break;
 
 			case 'classes':
 				$classes = new Export_Classes( $this->directory );
-				if ( ! $classes->generate() ) {
+				if ( false === ( $count = $classes->generate() ) ) {
 					$this->_errors[] = 'Error Processing Classes. :(';
 				} else {
-					WP_CLI::line( 'Created Classes Completions.' );
+					WP_CLI::line( sprintf( 'Created %s Classes Completions.', $count ) );
 				}
 				break;
 
 			case 'methods':
 				$methods = new Export_Methods( $this->directory );
-				if ( ! $methods->generate() ) {
+				if ( false === ( $count = $methods->generate() ) ) {
 					$this->_errors[] = 'Error Processing Methods. :(';
 				} else {
-					WP_CLI::line( 'Created Methods Completions.' );
+					WP_CLI::line( sprintf( 'Created %s Methods Completions.', $count ) );
 				}
 				break;
 
 			case 'functions':
 				$functions = new Export_Functions( $this->directory );
-				if ( ! $functions->generate() ) {
+				if ( false === ( $count = $functions->generate() ) ) {
 					$this->_errors[] = 'Error Processing Functions. :(';
 				} else {
-					WP_CLI::line( 'Created Functions Completions.' );
+					WP_CLI::line( sprintf( 'Created %s Functions Completions.', $count ) );
 				}
 				break;
 
 			case 'actions':
 				$actions = new Export_Hooks_Actions( $this->directory );
-				if ( ! $actions->generate() ) {
+				if ( false === ( $count = $actions->generate() ) ) {
 					$this->_errors[] = 'Error Processing Actions. :(';
 				} else {
-					WP_CLI::line( 'Created Actions Completions' );
+					WP_CLI::line( sprintf( 'Created %s Actions Completions', $count ) );
 				}
 				break;
 
 			case 'filters':
 				$filters = new Export_Hooks_Filters( $this->directory );
-				if ( ! $filters->generate() ) {
+				if ( false === ( $count = $filters->generate() ) ) {
 					$this->_errors[] = 'Error Processing Filters. :(';
 				} else {
-					WP_CLI::line( 'Created Filters Completions' );
+					WP_CLI::line( sprintf( 'Created %s Filters Completions', $count ) );
 				}
 				break;
 

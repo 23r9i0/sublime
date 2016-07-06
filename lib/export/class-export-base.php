@@ -56,9 +56,8 @@ class Export_Base {
 				'data' => $this->template
 			) );
 
-			if ( $file ) {
-				return true;
-			}
+			if ( $file )
+				return $this->count;
 		}
 
 		return false;
@@ -85,13 +84,22 @@ class Export_Base {
 
 	public function generate_completions() {
 		$completions = array();
+		$posts       = array();
 
 		if ( count( $this->elements ) ) {
 			global $post;
 			foreach ( $this->elements as $post ) {
-				if ( $completion = $this->generate_completion( $post ) ) {
-					$completions[] = $completion;
-					++$this->count;
+				if ( ! isset( $posts[ $post->post_type ] ) )
+					$posts[ $post->post_type ] = array();
+
+				if ( ! in_array( $post->post_title, $posts[ $post->post_type ] ) ) {
+					$posts[ $post->post_type ][] = $post->post_title;
+					if ( $completion = $this->generate_completion( $post ) ) {
+						$completions[] = $completion;
+						++$this->count;
+					}
+				} else {
+					WP_CLI::line( sprintf( 'Duplicate element: %s', $post->post_title ) );
 				}
 			}
 		}

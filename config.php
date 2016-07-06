@@ -11,7 +11,7 @@ add_filter( 'sublime_create_phpdoc_output_cache', '__return_false' );
 /**
  * This filter is documented in lib/class-command.php
  */
-add_filter( 'sublime_delete_phpdoc_output_cache', '__return_true' );
+add_filter( 'sublime_delete_phpdoc_output_cache', '__return_false' );
 
 /**
  * This filter is documented in lib/class-command.php
@@ -153,6 +153,29 @@ add_filter( 'sublime_export_function_arguments_completion', function( $arguments
 	return $arguments;
 }, 10, 3 );
 
+/**
+ * This filter is documented in lib/import/class-importer.php
+ */
+add_filter( 'sublime_skip_duplicate_by_name', function ( $skip, $data ) {
+	if ( isset( $data['doc']['description'] ) ) {
+		if ( 'akismet_comment_nonce' === $data['name'] ) {
+			if ( 0 === strpos( $data['doc']['description'], 'See filter documentation' ) )
+				return true;
+		}
+
+		if ( 'link_category' === $data['name'] ) {
+			if ( false !== strpos( $data['doc']['description'], 'OPML' ) )
+				return true;
+		}
+
+		if ( 'pre_user_login' === $data['name'] ) {
+			if ( false !== strpos( $data['doc']['description'], 'Filter a username after it has been sanitized.' ) )
+				return true;
+		}
+	}
+
+	return false;
+}, 10, 2 );
 
 /**
  * This filter is documented in lib/import/class-importer.php
