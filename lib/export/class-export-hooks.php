@@ -85,7 +85,7 @@ class Export_Hooks extends Export_Base {
 		$name = '';
 		foreach ( $matches as $match ) {
 			if ( false !== strpos( $match, '\\' ) ) {
-				$name .= sprintf( '${%d:{\{${%d:%s}\}}', ++$index, ++$index, $match );
+				$name .= sprintf( '${%d:\{${%d:%s}\}}', ++$index, ++$index, $match );
 			} else {
 				$name .= $match;
 			}
