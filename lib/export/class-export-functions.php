@@ -74,7 +74,7 @@ class Export_Functions extends Export_Base {
 
 		return array(
 			'trigger'   => $post->post_title . "\tWP Function",
-			'contents'  => $this->contents( $post->post_title, $this->parse_args( $arguments ) ),
+			'contents'  => $this->contents( $post->post_title, $this->parse_arguments( $arguments ) ),
 		);
 	}
 
@@ -82,7 +82,8 @@ class Export_Functions extends Export_Base {
 		if ( 1 === count( $data ) && ! isset( $data[0]['childrens'] ) ) {
 			if ( false === strpos( $data[0]['name'], 'deprecated' ) ) {
 				if ( isset( $data[0]['default_value'] ) ) {
-					$arguments = sprintf( '${1: ${2:%s} }', $data[0]['default_value'] );
+					list( $index, $value ) = $this->parse_argument_name( $data[0]['default_value'], 2 );
+					$arguments = sprintf( '${1: ${2:%s} }', $value );
 				} else {
 					$arguments = sprintf( ' ${1:\\%s} ', $data[0]['name'] );
 				}
@@ -90,15 +91,16 @@ class Export_Functions extends Export_Base {
 				$arguments = '';
 			}
 		} elseif ( count( $data ) ) {
-			$arguments = isset( $data[0]['childrens'] ) ? '${1: ' : ' ';
+			$first_children = isset( $data[0]['childrens'] );
+			$arguments      = $first_children ? '${1: ' : ' ';
+			$index          = $first_children ? 1 : 0;
 
-			$index = isset( $data[0]['childrens'] ) ? 1 : 0;
 			foreach ( $data as $key => $arg ) {
-				$arguments = $this->argument( $arguments, $arg, $index );
-				$index++;
+				list( $index, $arguments ) = $this->argument( $arguments, $arg, $index );
+				// $index++;
 			}
 
-			$arguments .= isset( $data[0]['childrens'] ) ? ' }' : ' ';
+			$arguments .= $first_children ? ' }' : ' ';
 		} else {
 			$arguments = '';
 		}
@@ -130,49 +132,62 @@ class Export_Functions extends Export_Base {
 
 	public function argument( $arguments, $data, $index ) {
 		$name = isset( $data['default_value'] ) ? $data['default_value'] : sprintf( '\\%s', $data['name'] );
-
 		if ( false === stripos( $data['name'], 'deprecated' ) ) {
 			if ( isset( $data['childrens'] ) ) {
 				if ( '${1: ' === $arguments ) {
-					$arguments .= sprintf( '${%d:%s}', ++$index, $name );
+					$arguments .= sprintf( '${%d:%s}', ++$index, $this->parse_argument_name( $name, ++$index ) );
 				} else {
-					$arguments .= sprintf( '${%d:, ${%d:%s}', ++$index, ++$index, $name );
+					$arguments .= sprintf( '${%d:, ${%d:%s}', ++$index, ++$index, $this->parse_argument_name( $name, ++$index ) );
 				}
 			} else {
 				if ( ' ' === $arguments ) {
-					$arguments .= sprintf( '${%d:%s}', ++$index, $name );
+					$arguments .= sprintf( '${%d:%s}', ++$index, $this->parse_argument_name( $name, ++$index ) );
 				} else {
 					if ( $this->is_optional( $data ) ) {
-						$arguments .= sprintf( '${%d:, ${%d:%s}}', ++$index, ++$index, $name );
+						$arguments .= sprintf( '${%d:, ${%d:%s}}', ++$index, ++$index, $this->parse_argument_name( $name, ++$index ) );
 					} else {
-						$arguments .= sprintf( ', ${%d:%s}', ++$index, $name );
-
+						$arguments .= sprintf( ', ${%d:%s}', ++$index, $this->parse_argument_name( $name, ++$index ) );
 					}
 				}
 			}
+
+			// Fix index
+			if ( $name === $this->parse_argument_name( $name ) )
+				$index = ( $index - 1 );
+
 		} else {
 			$arguments .= sprintf( '%s%s', ( preg_match( '/^(\$\{1: | )/', $arguments ) ? ', ' : '' ), $name );
 		}
 
 		if ( isset( $data['childrens'] ) ) {
 			foreach ( $data['childrens'] as $children ) {
-				$arguments = $this->argument( $arguments, $children, $index );
+				list( $index, $arguments ) = $this->argument( $arguments, $children, $index );
 				$index++;
 			}
-		} elseif ( $c = preg_match_all('/\$\{([0-9]+):, /', $arguments, $matches, PREG_SET_ORDER ) ) {
-			$arguments .= str_repeat( '}', ( $c - 1 ) );
+		} elseif ( $repeat = preg_match_all('/\$\{([0-9]+):, /', $arguments, $matches, PREG_SET_ORDER ) ) {
+			$arguments .= str_repeat( '}', absint( $repeat - 1 ) );
 		}
 
-		return $arguments;
+		return array( $index, $arguments );
 	}
 
-	public function parse_args( $arguments, $args = array() ) {
+	public function parse_argument_name( $value, $index = 0 ) {
+		if ( 'array()' === $value ) {
+			$value = sprintf( 'array( ${%s:} )', $index );
+		} elseif ( false !== strpos( $value, "'" ) ) {
+			$value = sprintf( "'\${%s:%s}'", $index, str_replace( "'", '', $value ) );
+		}
+
+		return $value;
+	}
+
+	public function parse_arguments( $arguments, $args = array() ) {
 		while ( $current = array_shift( $arguments ) ) {
 			if ( $this->is_optional( $current ) ) {
 				if ( $last = array_pop( $args ) ) {
 					if ( $this->is_optional( $last ) ) {
 						if ( isset( $last['childrens'] ) ) {
-							$last['childrens'] = $this->parse_args( array( $current ), $last['childrens'] );
+							$last['childrens'] = $this->parse_arguments( array( $current ), $last['childrens'] );
 							$args[] = $last;
 						} else {
 							$last['childrens'][] = $current;
