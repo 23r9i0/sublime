@@ -314,10 +314,18 @@ namespace Sublime {
 				$readme[] = '| ' . implode( ' | ', $separator ) . ' |';
 			}
 
-			$sort      = apply_filters( 'sublime_readme_table_sort_themes', array() );
-			$sort      = is_array( $sort ) ? $sort : array();
+			/**
+			 * Because php not sorting WordPress Themes
+			 * this filter does it
+			 *
+			 * Note: use WordPress Themes name, e.g Twenty Ten
+			 *
+			 * @var array
+			 */
+			$sort = apply_filters( 'sublime_readme_table_sort_themes', array() );
+			$sort = is_array( $sort ) ? $sort : array();
 
-			if ( ! empty ( $sort ) ) {
+			if ( ! empty( $sort ) ) {
 				$new_order = array();
 
 				foreach ( $data as $order => $content ) {
