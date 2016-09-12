@@ -272,8 +272,6 @@ namespace Sublime {
 				return $d;
 			}, $data );
 
-			fpc( 'data', $data, true );
-
 			foreach ( $data as $d ) {
 				foreach ( $d as $header => $content ) {
 					if ( empty( $headers[ $header ] ) )

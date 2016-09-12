@@ -3,7 +3,7 @@
 sublime is the parser for creating WordPress completions, use [WordPress PHPDoc Parser](https://github.com/WordPress/phpdoc-parser)
 
 ## Requirements
-* PHP 5.5+
+* PHP 5.6+
 * [Composer](https://getcomposer.org/)
 * [WP CLI](http://wp-cli.org/)
 
