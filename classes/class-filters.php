@@ -45,12 +45,12 @@ namespace Sublime {
 				'contents'  => $this->parse_contents( $post, $arguments ),
 			) );
 
-			// if ( false === strpos( $post->post_title, '{$' ) ) {
-			// 	$completion[] = array(
-			// 		'trigger'  => sprintf( "%s\tWP %s Name", $post->post_title, $name ),
-			// 		'contents' => $post->post_title,
-			// 	);
-			// }
+			if ( false === strpos( $post->post_title, '{$' ) ) {
+				$completion[] = array(
+					'trigger'  => sprintf( "%s\tWP %s Name", $post->post_title, $name ),
+					'contents' => $post->post_title,
+				);
+			}
 
 			return $completion;
 		}

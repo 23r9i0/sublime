@@ -201,10 +201,14 @@ namespace Sublime {
 				}
 
 				$this->messages[ $name ] = array(
-					'package' => $name,
-					'version' => $version,
-					'completions' => ( empty( $this->messages[ $name ]['completions'] ) ? 1 : ( $this->messages[ $name ]['completions'] + 1 ) )
+					'type'        => ( isset( $matches[1] ) ? ucfirst( substr( $matches[1], 0, -1 ) ) : 'Core' ),
+					'package'     => $name,
+					'version'     => $version,
+					'completions' => ( empty( $this->messages[ $name ]['completions'] ) ? 1 : ( $this->messages[ $name ]['completions'] + 1 ) ),
 				);
+
+				if ( isset( $matches ) )
+					unset( $matches );
 			}
 		}
 
@@ -253,7 +257,7 @@ namespace Sublime {
 			$content = explode( '### ', $content );
 			foreach ( $content as $key => $section ) {
 				if ( 0 === strpos( $section, $name ) ) {
-					$content[ $key ] = implode( "\n", $this->generate_readme( $output ) ) . "\n";
+					$content[ $key ] = implode( "\n", $this->generate_readme( $output ) );
 					break;
 				}
 			}

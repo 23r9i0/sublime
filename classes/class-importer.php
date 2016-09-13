@@ -247,9 +247,6 @@ namespace Sublime {
 			 */
 			if ( ! $deprecated_file  ) {
 				$deprecated_regex_files = array(
-					'wp-config',        // Exclude in case exists personal data
-					'wp-config-backup', // plugin wp-viewer-log generate copy of wp-config.php
-					'wp-config-sample', // Exclude in case exists all definitions already exists in others files
 					'wp-admin\/includes\/(ms-)?deprecated', // wp admin deprecated files
 					'wp-admin\/includes\/noop', // ?; Some functions, not is defined explications but if defined in others files or if phpdoc tag @ignore
 					'wp-includes\/compat', // wp php functions

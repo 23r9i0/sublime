@@ -89,9 +89,10 @@ namespace Sublime {
 		public function update_messages( $post_id = null ) {
 			if ( empty( $this->messages['WordPress'] ) ) {
 				$this->messages['WordPress'] = array(
+					'type'        => 'Core',
 					'package'     => 'WordPress',
 					'version'     => get_option( 'wp_parser_imported_wp_version', 'unknown' ),
-					'completions' => $this->count
+					'completions' => $this->count,
 				);
 			} else {
 				$this->messages['WordPress']['completions'] = $this->count;
