@@ -43,11 +43,23 @@ namespace Sublime {
 
 
 				if ( 'public' === strtolower( $data['visibility'] ) ) {
-					if ( false === strpos( $post->post_title, '__construct' ) ) {
-						$name = sprintf( '${1:%s', str_replace( '::', ( $data['static'] ? '}::' : '}->' ), $post->post_title ) );
+					/**
+					 * This filter is documented in lib/export/class-classes.php
+					 */
+					if ( ! apply_filters( 'sublime_export_method_is_global_variable', false, current( explode( '::', $post->post_title ) ) ) ) {
+						if ( false === strpos( $post->post_title, '__construct' ) ) {
+							$name = sprintf( '${1:%s', str_replace( '::', ( $data['static'] ? '}::' : '}->' ), $post->post_title ) );
+						} else {
+							$name = sprintf( '${1:\$${2:class} = }new %s', preg_replace( '/^([^:]+)(.*)$/', '$1', $post->post_title ) );
+						}
 					} else {
-						$name = sprintf( '${1:\$${2:class} = }new %s', preg_replace( '/^([^:]+)(.*)$/', '$1', $post->post_title ) );
+						if ( false === strpos( $post->post_title, '__construct' ) ) {
+							$name = '\$' . str_replace( '::', ( $data['static'] ? '::' : '->' ), $post->post_title );
+						} else {
+							return false;
+						}
 					}
+
 					return array(
 						'trigger' => sprintf( "%s\tWP Class Method", str_replace( '::', '-', $post->post_title ) ),
 						'contents' => $this->contents( $name, $this->parse_arguments( $data['args'] ) ),

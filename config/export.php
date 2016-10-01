@@ -98,6 +98,38 @@ add_filter( 'sublime_export_default_arguments', function( $arguments, $name ) {
 		return $arguments;
 	}
 
+	/**
+	 * Add default Path on load_plugin_textdomain for speed completion :)
+	 *
+	 * @see https://codex.wordpress.org/Function_Reference/load_plugin_textdomain#Examples
+	 */
+	if ( 'load_plugin_textdomain' === $name ) {
+		foreach ( $arguments as &$argument ) {
+			if ( '$plugin_rel_path' === $argument['name'] ) {
+				$argument['default_value'] = "dirname( plugin_basename( __FILE__ ) ) . '/languages'";
+				break;
+			}
+		}
+
+		return $arguments;
+	}
+
+	/**
+	 * Add Default Path on load_theme_textdomain for speed completion :)
+	 *
+	 * @see https://codex.wordpress.org/Function_Reference/load_theme_textdomain#Examples
+	 */
+	if ( 'load_theme_textdomain' === $name ) {
+		foreach ( $arguments as &$argument ) {
+			if ( '$path' === $argument['name'] ) {
+				$argument['default_value'] = "get_template_directory() . '/languages'";
+				break;
+			}
+		}
+
+		return $arguments;
+	}
+
 	return $arguments;
 
 }, 10, 2 );
@@ -127,3 +159,10 @@ add_filter( 'sublime_export_function_arguments_completion', function( $arguments
 	return $arguments;
 
 }, 10, 3 );
+
+/**
+ * This filter is documented in lib/export/class-classes.php
+ */
+add_filter( 'sublime_export_method_is_global_variable', function( $is_global_variable, $class_name ) {
+	return in_array( $class_name, array( 'wpdb' ) );
+}, 10, 2 );

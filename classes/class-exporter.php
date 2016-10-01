@@ -251,21 +251,63 @@ namespace Sublime {
 
 			$readme = trailingslashit( $directory ) . 'Readme.md';
 
+			if ( false === stream_resolve_include_path( $readme ) )
+				WP_CLI::error( 'The Readme.md file not exists' );
+
 			if ( false === ( $content = file_get_contents( $readme ) ) )
-				WP_CLI::error( 'Some problem occurred when extracting the file contents.' );
+				WP_CLI::error( 'Some problem occurred when extracting the file contents on Readme file.' );
 
 			$content = explode( '### ', $content );
-			foreach ( $content as $key => $section ) {
-				if ( 0 === strpos( $section, $name ) ) {
-					$content[ $key ] = implode( "\n", $this->generate_readme( $output ) );
-					break;
+			foreach ( $content as $kc => $section ) {
+				if ( 0 === strpos( $section, 'Completions List' ) ) {
+					$sub_content = explode( "\n", $section );
+					foreach ( $sub_content as $ksc => $sub_section ) {
+						if ( 0 === strpos( $sub_section, "| {$name}" ) ) {
+							$length = array_map( function( $l ) {
+								return strlen( $l );
+							}, explode( ' | ', $sub_section ) );
+							$row = explode( '|', str_replace( 'Completions:', '|', current( $output ) ) );
+							foreach ( $row as $kr => $r ) {
+								if ( $length[ $kr ] > strlen( $r ) )
+									$row[ $kr ] = $r . str_repeat( ' ', ( $length[ $kr ] - strlen( $r ) - 1 ) );
+							}
+
+							$sub_content[ $ksc ] = '| ' . implode( '|', $row ) . ' |';
+						}
+					}
+					$content[ $kc ] = implode( "\n", $sub_content );
 				}
 			}
 
 			file_put_contents( $readme, implode( '### ', $content ) );
+			return;
+
+			$wiki = trailingslashit( $directory ) . 'wiki/Home.md';
+			if ( false === stream_resolve_include_path( $wiki ) )
+				WP_CLI::error( 'The Home.md file not exists' );
+
+			if ( false === ( $content = file_get_contents( $wiki ) ) )
+				WP_CLI::error( 'Some problem occurred when extracting the file contents on wiki page.' );
+
+			$content = preg_split( '/^## /m', $content );
+			foreach ( $content as $kc => $section ) {
+				if ( 0 === strpos( $section, 'Completions List' ) ) {
+					$sub_content = explode( '### ', $section );
+					foreach ( $sub_content as $ksc => $sub_section ) {
+						if ( 0 === strpos( $sub_section, $name ) ) {
+							$sub_content[ $ksc ] = implode( "\n", $this->generate_wiki( $output ) );
+						}
+					}
+					$content[ $kc ] = implode( '### ', $sub_content );
+				}
+			}
+
+			file_put_contents( $wiki, implode( '## ', $content ) );
+
 		}
 
-		public function generate_readme( $data ) {
+		public function generate_wiki( $data ) {
+
 			$total = array_shift( $data );
 			$length = $headers = array();
 
@@ -329,23 +371,23 @@ namespace Sublime {
 			$sort = apply_filters( 'sublime_readme_table_sort_themes', array() );
 			$sort = is_array( $sort ) ? $sort : array();
 
-			if ( ! empty( $sort ) ) {
-				$new_order = array();
+			// if ( ! empty( $sort ) ) {
+			// 	$new_order = array();
 
-				foreach ( $data as $order => $content ) {
-					if ( ! in_array( $order, $sort ) )
-						$new_order[ $order ] = $content;
-				}
+			// 	foreach ( $data as $order => $content ) {
+			// 		if ( ! in_array( $order, $sort ) )
+			// 			$new_order[ $order ] = $content;
+			// 	}
 
-				foreach ( $sort as $order ) {
-					foreach ( $data as $name => $content ) {
-						if ( $order === $name )
-							$new_order[ $name ] = $content;
-					}
-				}
+			// 	foreach ( $sort as $order ) {
+			// 		foreach ( $data as $name => $content ) {
+			// 			if ( $order === $name )
+			// 				$new_order[ $name ] = $content;
+			// 		}
+			// 	}
 
-				$data = $new_order;
-			}
+			// 	$data = $new_order;
+			// }
 
 
 			foreach ( $data as $d ) {

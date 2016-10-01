@@ -18,9 +18,20 @@ namespace Sublime {
 		}
 
 		public function generate_completion( $post ) {
+			/**
+			 * Use for define class if global variable
+			 *
+			 * e.g.: $wpdb
+			 */
+			if ( ! apply_filters( 'sublime_export_method_is_global_variable', false, current( explode( '::', $post->post_title ) ) ) ) {
+				$name = $post->post_title;
+			} else {
+				$name = sprintf( 'global %s;', $post->post_title );
+			}
+
 			return array(
 				'trigger' => sprintf( "%s\tWP Class Name", $post->post_title ),
-				'contents' => $post->post_title
+				'contents' => $name
 			);
 		}
 	}
