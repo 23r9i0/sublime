@@ -26,7 +26,7 @@ namespace Sublime {
 			if ( ! apply_filters( 'sublime_export_method_is_global_variable', false, current( explode( '::', $post->post_title ) ) ) ) {
 				$name = $post->post_title;
 			} else {
-				$name = sprintf( 'global %s;', $post->post_title );
+				$name = sprintf( 'global \$%s;', $post->post_title );
 			}
 
 			return array(
