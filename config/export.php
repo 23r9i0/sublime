@@ -130,6 +130,20 @@ add_filter( 'sublime_export_default_arguments', function( $arguments, $name ) {
 		return $arguments;
 	}
 
+	/**
+	 * Fix deprecated arguments without default value
+	 */
+	if ( in_array( $name, array( '_future_post_hook', 'wp_upload_bits' ) ) ) {
+		foreach ( $arguments as &$argument ) {
+			if ( false !== stripos( $argument['name'], 'deprecated' ) ) {
+				$argument['default_value'] = 'null';
+				break;
+			}
+		}
+
+		return $arguments;
+	}
+
 	return $arguments;
 
 }, 10, 2 );
@@ -152,10 +166,6 @@ add_filter( 'sublime_export_function_content_completion', function( $completion,
  * This filter is documented in lib/export/class-functions.php
  */
 add_filter( 'sublime_export_function_arguments_completion', function( $arguments, $name, $data ) {
-	// Replace completions for speed and more compressible :)
-	if ( in_array( $name, array( 'post_class', 'get_post_class' ) ) )
-		return str_replace( array( 'array()', '${3:, ${4:null' ), array( 'array( ${3:\$class} )', '${4:, ${5:\$post_id' ), $arguments );
-
 	return $arguments;
 
 }, 10, 3 );

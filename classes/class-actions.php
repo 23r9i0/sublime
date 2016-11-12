@@ -5,19 +5,15 @@
  * @package sublime
  * @subpackage export
  */
-namespace Sublime {
+namespace Sublime;
 
-	use \Sublime\Filters;
+use \Sublime\Filters;
 
-	class Actions extends Filters {
+class Actions extends Filters {
 
-		// public $name = 'Actions';
+	public $type = 'action';
 
-		public $type = 'action';
-
-		public function __construct( $directory = '' ) {
-			parent::__construct( $directory );
-		}
+	public function __construct( $directory = '' ) {
+		parent::__construct( $directory );
 	}
-
 }

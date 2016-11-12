@@ -5,21 +5,19 @@
  * @package sublime
  * @subpackage export
  */
-namespace Sublime {
+namespace Sublime;
 
-	use \Sublime\Exporter;
+use \Sublime\Exporter;
 
-	class Constants extends Exporter {
+class Constants extends Exporter {
 
-		public $post_type = 'wp-parser-constant';
+	public $post_type = 'wp-parser-constant';
 
-		public function __construct( $directory = '' ) {
-			parent::__construct( $directory );
-		}
-
-		public function generate_completion( $post ) {
-			return array( 'trigger' => "{$post->post_title}\tWP Constant", 'contents' => $post->post_title );
-		}
+	public function __construct( $directory = '' ) {
+		parent::__construct( $directory );
 	}
 
+	public function generate_completion( $post ) {
+		return array( 'trigger' => "{$post->post_title}\tWP Constant", 'contents' => $post->post_title );
+	}
 }
