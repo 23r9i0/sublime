@@ -30,8 +30,7 @@ class Command extends \WP_Parser\Command {
 	 * : Specify the type of the completions.
 	 *
 	 * [--update-readme]
-	 * : Update Readme.md for WordPress Completions Sublime Package
-	 *
+	 * : Update Readme.md for WordPress Completions Sublime Package and Update /wiki/Home.md if exists
 	 */
 	public function generate( $args, $assoc_args ) {
 		$classes   = array();
@@ -137,7 +136,8 @@ class Command extends \WP_Parser\Command {
 	 *
 	 * @param array $data
 	 * @param bool  $skip_sleep     If true, the sleep() calls are skipped.
-	 * @param bool  $import_ignored If true, functions marked `@ignore` will be imported.
+	 * @param bool  $import_ignored If true, functions marked `@ignore` will be imported
+	 *                              Disabled, not remove to prevent PHP Warning
 	 */
 	protected function _do_import( array $data, $skip_sleep = false, $import_ignored = false ) {
 		if ( ! wp_get_current_user()->exists() )
@@ -174,6 +174,6 @@ class Command extends \WP_Parser\Command {
 		}
 
 		// Run the importer
-		Importer::run( $data, $skip_sleep, $import_ignored );
+		Importer::run( $data, $skip_sleep );
 	}
 }

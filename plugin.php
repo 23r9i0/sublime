@@ -21,16 +21,16 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	 */
 	new \Sublime\Plugin();
 
-	if ( ! function_exists( 'je' ) ) {
-		function je( $data ) {
+	if ( ! function_exists( '_subl_json_encode' ) ) {
+		function _subl_json_encode( $data ) {
 			return json_encode( $data, JSON_PRETTY_PRINT );
 		}
 	}
 
-	if ( ! function_exists( 'fpc' ) ) {
-		function fpc( $name, $data, $append = false ) {
+	if ( ! function_exists( '_subl_file_put_contents' ) ) {
+		function _subl_file_put_contents( $name, $data, $append = false ) {
 			$ext = ( false !== strpos( $name, '.' ) ? '' : ( is_string( $data ) ? '.txt' : '.json' ) );
-			file_put_contents( __DIR__ . "/{$name}{$ext}", ( is_string( $data ) ? $data : je( $data ) ), ( $append ? FILE_APPEND : 0 ) );
+			file_put_contents( __DIR__ . "/{$name}{$ext}", ( is_string( $data ) ? $data : sublime_json_encode( $data ) ), ( $append ? FILE_APPEND : 0 ) );
 		}
 	}
 }

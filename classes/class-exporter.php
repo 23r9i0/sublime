@@ -207,8 +207,7 @@ class Exporter {
 				'completions' => ( empty( $this->messages[ $name ]['completions'] ) ? 1 : ( $this->messages[ $name ]['completions'] + 1 ) ),
 			);
 
-			if ( isset( $matches ) )
-				unset( $matches );
+			unset( $matches );
 		}
 	}
 

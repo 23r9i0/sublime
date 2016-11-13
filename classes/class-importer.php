@@ -12,14 +12,25 @@ use \WP_Parser\WP_CLI_Logger;
 
 class Importer extends \WP_Parser\Importer {
 
+	/**
+	 * Post type name for constants
+	 *
+	 * @var string
+	 */
 	public $post_type_constant;
 
-	private $import_post_ids = array();
+	/**
+	 * List to imported element
+	 * Using to eliminate orphans
+	 *
+	 * @var array
+	 */
+	private $imported = array();
 
-	public static function run( array $data, $skip_sleep = false, $import_ignored = false ) {
+	public static function run( array $data, $skip_sleep = false ) {
 		$importer = new Importer;
 		$importer->setLogger( new WP_CLI_Logger );
-		$importer->import( $data, $skip_sleep, $import_ignored );
+		$importer->import( $data, $skip_sleep );
 	}
 
 	public static function set_parser_phpdoc( $directory ) {
@@ -184,15 +195,16 @@ class Importer extends \WP_Parser\Importer {
 	 * @param array $data
 	 * @param bool  $skip_sleep               Optional; defaults to false. If true, the sleep() calls are skipped.
 	 * @param bool  $import_ignored_functions Optional; defaults to false. If true, functions marked `@ignore` will be imported.
+	 *                                        Disabled, not remove to prevent PHP Warning
 	 */
 	public function import( array $data, $skip_sleep = false, $import_ignored_functions = false ) {
-		parent::import( $data, $skip_sleep, $import_ignored_functions );
+		parent::import( $data, $skip_sleep );
 
 		global $wpdb;
 
-		// Delete unknown post
+		// Delete orphans posts
 		$post_types = $post_ids = array();
-		foreach ( $this->import_post_ids as $post_type => $l ) {
+		foreach ( $this->imported as $post_type => $l ) {
 			$post_types[] = "'$post_type'";
 			$post_ids = array_merge( $post_ids, array_map( 'absint', $l ) );
 		}
@@ -225,6 +237,7 @@ class Importer extends \WP_Parser\Importer {
 	 * @param array $file
 	 * @param bool  $skip_sleep     Optional; defaults to false. If true, the sleep() calls are skipped.
 	 * @param bool  $import_ignored Optional; defaults to false. If true, functions and classes marked `@ignore` will be imported.
+	 *                              Disabled, not remove to prevent PHP Warning
 	 */
 	public function import_file( array $file, $skip_sleep = false, $import_ignored = false ) {
 
@@ -341,6 +354,16 @@ class Importer extends \WP_Parser\Importer {
 		}
 	}
 
+	/**
+	 * Create a post for a constant
+	 *
+	 * @param array $data           Constant.
+	 * @param int   $parent_post_id Optional; post ID of the parent (class or function) this item belongs to. Defaults to zero (no parent).
+	 * @param bool  $import_ignored Optional; defaults to false. If true, functions marked `@ignore` will be imported.
+	 *                              Disabled, not remove to prevent PHP Warning
+	 *
+	 * @return bool|int Post ID of this function, false if any failure.
+	 */
 	public function import_constant( array $data, $parent_post_id = 0, $import_ignored = false ) {
 		/**
 		 * Exclude some Constants for various reasons
@@ -366,6 +389,7 @@ class Importer extends \WP_Parser\Importer {
 	 * @param array $data           Hook.
 	 * @param int   $parent_post_id Optional; post ID of the parent (function) this item belongs to. Defaults to zero (no parent).
 	 * @param bool  $import_ignored Optional; defaults to false. If true, hooks marked `@ignore` will be imported.
+	 *                              Disabled, not remove to prevent PHP Warning
 	 * @return bool|int Post ID of this hook, false if any failure.
 	 */
 	public function import_hook( array $data, $parent_post_id = 0, $import_ignored = false ) {
@@ -410,6 +434,7 @@ class Importer extends \WP_Parser\Importer {
 	 * @param array $data           Data.
 	 * @param int   $parent_post_id Optional; post ID of the parent (class or function) this item belongs to. Defaults to zero (no parent).
 	 * @param bool  $import_ignored Optional; defaults to false. If true, functions or classes marked `@ignore` will be imported.
+	 *                              Disabled, not remove to prevent PHP Warning
 	 * @param array $arg_overrides  Optional; array of parameters that override the defaults passed to wp_update_post().
 	 *
 	 * @return bool|int Post ID of this item, false if any failure.
@@ -644,7 +669,7 @@ class Importer extends \WP_Parser\Importer {
 		do_action( 'wp_parser_import_item', $post_id, $data, $post_data );
 
 
-		$this->import_post_ids[ $post_data['post_type'] ][] = $post_id;
+		$this->imported[ $post_data['post_type'] ][] = $post_id;
 
 		return $post_id;
 	}

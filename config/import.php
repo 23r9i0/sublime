@@ -29,6 +29,8 @@ add_filter( 'sublime_include_plugins', function ( $plugins ) {
 
 /**
  * This filter is documented in lib/class-importer.php
+ *
+ * Not remove wp-config files, all constants inside this files already exists inside Core files or in /missing/constants.php
  */
 add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 	return array(

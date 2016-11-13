@@ -127,3 +127,31 @@ define( 'WP_AUTO_UPDATE_CORE', false );
  * Cleanup Image Edits
  */
 define( 'IMAGE_EDIT_OVERWRITE', true );
+
+/**
+ * Database Charset to use in creating database tables.
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define('DB_CHARSET', 'utf8');
+
+/**
+ * The Database Collate type. Don't change this if in doubt.
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define('DB_COLLATE', '');
+
+/**
+ * Authentication Unique Keys
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define('AUTH_KEY', 'phrase');
+
+/**
+ * Authentication Unique Keys
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define('NONCE_KEY', 'phrase');
