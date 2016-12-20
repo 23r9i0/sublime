@@ -30,7 +30,7 @@ if ( false !== stream_resolve_include_path( __DIR__ . '/vendor/autoload.php' ) )
 	if ( ! function_exists( '_subl_file_put_contents' ) ) {
 		function _subl_file_put_contents( $name, $data, $append = false ) {
 			$ext = ( false !== strpos( $name, '.' ) ? '' : ( is_string( $data ) ? '.txt' : '.json' ) );
-			file_put_contents( __DIR__ . "/{$name}{$ext}", ( is_string( $data ) ? $data : sublime_json_encode( $data ) ), ( $append ? FILE_APPEND : 0 ) );
+			file_put_contents( __DIR__ . "/{$name}{$ext}", ( is_string( $data ) ? $data : _subl_json_encode( $data ) ), ( $append ? FILE_APPEND : 0 ) );
 		}
 	}
 }

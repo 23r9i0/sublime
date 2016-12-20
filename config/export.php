@@ -26,6 +26,7 @@ add_filter( 'sublime_readme_table_sort_themes', function ( $sort ) {
 		'Twenty Fourteen',
 		'Twenty Fifteen',
 		'Twenty Sixteen',
+		'Twenty Seventeen',
 	);
 
 }, 10, 2 );
