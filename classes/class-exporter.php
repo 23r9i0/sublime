@@ -280,9 +280,9 @@ class Exporter {
 
 		file_put_contents( $readme, implode( '### ', $content ) );
 
-		$wiki = trailingslashit( $directory ) . 'wiki/Home.md';
+		$wiki = trailingslashit( $directory ) . 'wiki/Completions.md';
 		if ( false === stream_resolve_include_path( $wiki ) )
-			WP_CLI::error( 'The Home.md file not exists' );
+			WP_CLI::error( 'The Completions.md file not exists' );
 
 		if ( false === ( $content = file_get_contents( $wiki ) ) )
 			WP_CLI::error( 'Some problem occurred when extracting the file contents on wiki page.' );

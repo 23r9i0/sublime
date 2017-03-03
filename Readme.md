@@ -38,5 +38,6 @@ wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|
 
 # Notes
 
-* Use `sublime/config.php` file to change defaults filters. Optional
+* Use files inside to `sublime/config/` folder for change defaults filters. Optional
 * Use folder `sublime/missing` for include missing, by default if defined constants.php for include by example WP_HOME constant, this plugin auto load all files inside this folder on import
+* The bin folder contains files for personal use, they are used to streamline processes.

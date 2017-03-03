@@ -31,11 +31,14 @@ class Command extends \WP_Parser\Command {
 	 *
 	 * [--update-readme]
 	 * : Update Readme.md for WordPress Completions Sublime Package and Update /wiki/Home.md if exists
+	 *
+	 * [--update-snippets]
+	 * : Update Snippets List section inside of the /wiki/Home.md if exists
 	 */
 	public function generate( $args, $assoc_args ) {
 		$classes   = array();
 		$directory = \WP_CLI\Utils\get_flag_value( $assoc_args, 'directory', '' );
-		$type      = \WP_CLI\Utils\get_flag_value( $assoc_args, 'type', 'all' );
+		$type      = \WP_CLI\Utils\get_flag_value( $assoc_args, 'type', '' );
 		$types     = array( 'functions', 'actions', 'filters', 'classes', 'methods', 'constants', 'capabilities' );
 
 		if ( 'all' === $type ) {
@@ -48,7 +51,7 @@ class Command extends \WP_Parser\Command {
 
 		} elseif ( in_array( $type, $types ) ) {
 			$classes[] = $type;
-		} else {
+		} elseif ( empty( $assoc_args['update-snippets'] ) ) {
 			WP_CLI::error( sprintf( 'Type %s is undefined.', $type ) );
 		}
 
@@ -56,6 +59,9 @@ class Command extends \WP_Parser\Command {
 			$class = "\\Sublime\\" . ucfirst( $class );
 			call_user_func( array( $class, 'run' ), $directory, isset( $assoc_args['update-readme'] ) );
 		}
+
+		if ( ( isset( $assoc_args['update-readme'] ) && count( $classes ) ) || isset( $assoc_args['update-snippets'] ) )
+			call_user_func( array( "\\Sublime\\Snippets", 'run' ), $directory );
 	}
 
 	/**
