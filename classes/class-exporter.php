@@ -3,7 +3,6 @@
  * Base Class for generate export
  *
  * @package sublime
- * @subpackage export
  */
 namespace Sublime;
 
@@ -52,7 +51,6 @@ class Exporter {
 			'completions' => array(),
 		) );
 
-		$directory = empty( $directory ) ? plugin_dir_path( dirname( __DIR__ ) ) : $directory;
 		$this->directory = trailingslashit( $directory ) . 'completions/';
 
 		if ( ! is_dir( $this->directory ) )
@@ -244,9 +242,6 @@ class Exporter {
 	public function update_readme( $directory = '', $name = '', $output = array() ) {
 		if ( empty( $directory ) || empty( $name ) || empty( $output ) )
 			WP_CLI::error( 'Not is possible update Readme.md' );
-
-		if ( ! is_dir( $directory ) )
-			WP_CLI::error( "Directory not exists" );
 
 		$readme = trailingslashit( $directory ) . 'Readme.md';
 

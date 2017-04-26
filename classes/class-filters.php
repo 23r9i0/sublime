@@ -3,7 +3,6 @@
  * Export Filters
  *
  * @package sublime
- * @subpackage export
  */
 namespace Sublime;
 
@@ -14,6 +13,8 @@ class Filters extends Exporter {
 	public $type = 'filter';
 
 	public $post_type = 'wp-parser-hook';
+
+	// public $private_completions = array();
 
 	public function __construct( $directory = '' ) {
 		parent::__construct( $directory );
@@ -52,6 +53,12 @@ class Filters extends Exporter {
 				'contents' => $post->post_title,
 			);
 		}
+
+		// $tags = get_post_meta( $post->ID, '_wp-parser_tags', true );
+		// if ( wp_list_filter( $tags, array( 'name' => 'private' ) ) ) {
+		// 	$this->private_completions[] = $completion;
+		// 	return false;
+		// }
 
 		return $completion;
 	}

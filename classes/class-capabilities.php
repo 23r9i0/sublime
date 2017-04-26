@@ -14,7 +14,6 @@
  * 		 Thanks
  *
  * @package sublime
- * @subpackage export
  */
 namespace Sublime;
 

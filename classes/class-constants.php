@@ -3,7 +3,6 @@
  * Export Constants
  *
  * @package sublime
- * @subpackage export
  */
 namespace Sublime;
 

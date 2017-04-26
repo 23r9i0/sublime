@@ -1,0 +1,224 @@
+#!/bin/bash
+
+# FUNCTIONS
+
+# Check if value in array
+# in_array "str" "${array[@]}"
+function in_array() {
+  local e
+  for e in "${@:2}"; do
+    [[ "${e}" == "${1}" ]] && return 0;
+  done
+  return 1
+}
+
+# Expand user path
+# from ~/ to /home/user/
+function expand_path() {
+  echo "$(eval echo $@)"
+}
+
+# Print message with prefix ERROR:
+# and color red for prefix
+function error() {
+  local r='\033[0;31m'
+  local n='\033[0m'
+  echo -e "${r}ERROR:${n} $@"
+}
+
+# Print message with prefix INFO:
+# and color green for prefix
+function info() {
+  local g='\033[0;32m'
+  local n='\033[0m'
+  echo -e "${g}INFO:${n} $@"
+}
+
+# On external bash process run composer command
+function run_composer() {
+  local directory="${1}/wp-content/plugins/sublime"
+  info "Running composer command..."
+  bash -c "cd ${directory} && composer update --optimize-autoloader --no-progress" || exit 1
+}
+
+# Parse args and run wp subl create command
+function wp_subl_create() {
+  # <directory> [--quick]
+  # require --user=<id|login|email>
+
+  local quick=" --quick"
+  local user="${user_arg_user:-1}"
+  local directory="$HOME/www/sublime"
+
+  info "Defaults:"
+  info " - directory: ${directory}"
+  info " - quick:     true"
+  info " - user:      1"
+
+
+  [ -d "${action_dir}" ] && directory="${action_dir}"
+
+  [ "${user_arg_no_quick}" = "true" ] && quick=""
+
+  wp subl create "${directory}" --path="${wp_path}" --user="${user}" ${quick}
+}
+
+# Parse args and run wp subl generate command
+function wp_subl_generate() {
+  # <directory> [--types=<type|type>] [--md] [--snippets] [--no-snippets]
+
+  local types="${user_arg_types:-all}"
+  local md=" --md"
+  local snippets=""
+  local no_snippets=""
+  local directory="$HOME/sources/sublime-text-wordpress"
+
+  info "Defaults:"
+  info " - directory:   ${directory}"
+  info " - types:       all"
+  info " - md:          true"
+  info " - snippets:    false"
+  info " - no snippets: false"
+
+  # restore default separator
+  types="${types//-/|}"
+
+  [ -d "${action_dir}" ] && directory="${action_dir}"
+
+  [ "${user_arg_no_md}" = "true" ] && md=""
+
+  [ "${user_arg_snippets}" = "true" ] && snippets=" --snippets"
+
+  [ "${user_arg_no_snippets}" = "true" ] && no_snippets=" --no-snippets"
+
+  # Prevent export completions
+  if [[ "${#input_args[@]}" -eq "1" && "${snippets}" != "" ]]
+  then
+    md=""
+    types="none"
+  fi
+  wp subl generate "${directory}" --types="${types}" --path="${wp_path}" ${md} ${snippets} ${no_snippets}
+}
+
+# RUN SCRIPT
+
+# Check required commands
+if [[ ! "$(which wp)" ]]
+then
+  error "Missing wp cli command"
+  exit 1
+fi
+
+if [[ ! "$(which composer)" ]]
+then
+  error "Missing composer command."
+  exit 1
+fi
+
+# Convert args to array
+# and expand user path if exists
+input_args=()
+for x in "$@"
+do
+  # replace | with - prevent bash error
+  input_args+=("$(expand_path ${x//|/-})")
+done
+
+# WordPress PATH
+wp_path="${HOME}/www/sublime"
+temp=()
+for x in "${input_args[@]}"
+do
+  if [[ "${x:0:7}" = "--path=" ]]
+  then
+    wp_path="$(expand_path ${x:7})"
+  else
+    temp+=("${x}")
+  fi
+done
+input_args=("${temp[@]}")
+
+# Check if plugin is active
+if [[ $(wp plugin status sublime --path="${wp_path}" | grep 'Inactive') ]]
+then
+  info "Activating sublime plugin..."
+  wp plugin activate sublime --path="${wp_path}" || exit 1
+  run_composer "${wp_path}"
+fi
+
+# Current action
+action=""
+actions=("create" "generate")
+temp=()
+for x in "${input_args[@]}"
+do
+  if in_array "${x}" "${actions[@]}"
+  then
+    action="${x}"
+  else
+    temp+=("${x}")
+  fi
+done
+input_args=("${temp[@]}")
+
+# User action directory
+action_dir=()
+temp=()
+for x in "${input_args[@]}"
+do
+  if [[ "${x:0:1}" = "-" ]]; then
+    temp+=("${x:2}")
+  else
+    action_dir+=("${x}")
+  fi
+done
+input_args=("${temp[@]}")
+
+if [[ "${#action_dir[@]}" -gt "1" ]]
+then
+  error "More the one args without '--'"
+  exit 1
+else
+  action_dir="${action_dir[0]}"
+fi
+
+# Declare user args
+for x in "${input_args[@]}"
+do
+  key="$(echo ${x} | grep -oE '^[^=]+')"
+  value="$(echo ${x} | grep -oE '[^=]+$')"
+  if [[ "${value}" = "" || "${value}" = "${key}" ]]
+  then
+    value="true"
+  fi
+  declare "user_arg_${key/-/_}"="${value}"
+done
+
+info "Default options are used, if not specified before."
+
+if [[ "${action}" = "create" ]]; then
+    wp_subl_create
+elif [[ "${action}" = "generate" ]]; then
+  wp_subl_generate
+else
+    PS3="Enter the option number: "
+    select q in "create" "generate" "exit"
+    do
+      case $q in
+        create )
+          wp_subl_create
+          break
+          ;;
+        generate )
+          wp_subl_generate
+          break
+          ;;
+        exit )
+          break
+          ;;
+        * )
+          error "Invalid option number, Try again or press ctrl+C"
+          ;;
+      esac
+    done
+fi

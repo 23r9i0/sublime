@@ -19,49 +19,116 @@ use \Sublime\Methods;
 class Command extends \WP_Parser\Command {
 
 	/**
-	 * Generate Packages files inside package folder or custom folder
+	 * Generate JSON containing the PHPDoc markup, convert it into WordPress posts, and insert into DB.
+	 *
+	 * @subcommand create
+	 * @synopsis <directory> [--quick]
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--directory=<directory>]
-	 * : Specify the directory on generate WordPress completions, this completions is create inside of the completions folder on directory.
+	 * <directory>
+	 * : WordPress directory
 	 *
-	 * [--type=<all|constants|capabilities|functions|hooks|actions|filters|classes|methods>]
-	 * : Specify the type of the completions.
+	 * [--quick]
+	 * : Disable sleeping
 	 *
-	 * [--update-readme]
-	 * : Update Readme.md for WordPress Completions Sublime Package and Update /wiki/Home.md if exists
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	public function create( $args, $assoc_args ) {
+		parent::create( $args, $assoc_args );
+	}
+
+	/**
+	 * Generate files for packages
 	 *
-	 * [--update-snippets]
-	 * : Update Snippets List section inside of the /wiki/Home.md if exists
+	 * @subcommand generate
+	 * @synopsis <directory> [--types=<type|type>] [--md] [--snippets] [--no-snippets]
+	 *
+	 * ## OPTIONS
+	 *
+	 * <directory>
+	 * : Packages directory
+	 *
+	 * [--types=<type|type>]
+	 * : Specifies the types that are generated.
+	 * ---
+	 * options:
+	 * 	- all
+	 * 	- constants or cons
+	 * 	- capabilities or caps
+	 * 	- functions or func
+	 * 	- hooks
+	 * 	- actions
+	 * 	- filters
+	 * 	- classes
+	 * 	- methods
+	 * 	- class_method (Both classes and methods)
+	 * ---
+	 *
+	 * [--md]
+	 * : Update Readme.md and wiki files
+	 *
+	 * [--snippets]
+	 * : Update Snippets List section inside of the wiki
+	 *
+	 * [--no-snippets]
+	 * : Prevent update Snippets List if declare --md argument
 	 */
 	public function generate( $args, $assoc_args ) {
-		$classes   = array();
-		$directory = \WP_CLI\Utils\get_flag_value( $assoc_args, 'directory', '' );
-		$type      = \WP_CLI\Utils\get_flag_value( $assoc_args, 'type', '' );
-		$types     = array( 'functions', 'actions', 'filters', 'classes', 'methods', 'constants', 'capabilities' );
+		list( $directory ) = $args;
+		$directory = realpath( $directory );
 
-		if ( 'all' === $type ) {
+		if ( ! is_dir( $directory ) )
+			WP_CLI::error( sprintf( '%s: is not a directory.', $directory ) );
+
+		$classes = array();
+		$what    = explode( '|', \WP_CLI\Utils\get_flag_value( $assoc_args, 'types', 'none' ) );
+		$types   = array( 'functions', 'actions', 'filters', 'classes', 'methods', 'constants', 'capabilities' );
+
+		if ( in_array( 'all', $what ) ) {
 			foreach ( $types as $type )
 				$classes[] = $type;
+		} else {
+			if ( in_array( 'hooks', $what ) )
+				$what = array_merge( array( 'filters', 'actions' ), $what );
 
-		} elseif ( 'hooks' === $type ) {
-			foreach ( array( 'actions', 'filters' ) as $type )
-				$classes[] = $type;
+			foreach ( $what as $type ) {
+				// Prevent strncmp not found
+				$type = ( 'caps' === $type ) ? 'capabilities' : $type;
 
-		} elseif ( in_array( $type, $types ) ) {
-			$classes[] = $type;
-		} elseif ( empty( $assoc_args['update-snippets'] ) ) {
-			WP_CLI::error( sprintf( 'Type %s is undefined.', $type ) );
+				foreach ( $types as $class ) {
+					if ( $type === $class || 0 === strncmp( $type, $class, strlen( $type ) ) ) {
+						$classes[] = $class;
+					}
+				}
+			}
+			if ( in_array( 'class_method', $what ) ) {
+				$classes = array_merge( array( 'classes', 'methods' ), $classes );
+				usort( $classes, function( $a, $b ) use ( $types ) {
+					return array_search( $a, $types ) - array_search( $b, $types );
+				});
+			}
+
 		}
+
+		$classes = array_filter( array_unique( $classes ) );
+		if ( empty( $classes ) && empty( $assoc_args['snippets'] ) )
+			WP_CLI::error( 'Please, Define some type.' );
 
 		foreach ( $classes as $class ) {
 			$class = "\\Sublime\\" . ucfirst( $class );
-			call_user_func( array( $class, 'run' ), $directory, isset( $assoc_args['update-readme'] ) );
+			call_user_func( array( $class, 'run' ), $directory, isset( $assoc_args['md'] ) );
 		}
 
-		if ( ( isset( $assoc_args['update-readme'] ) && count( $classes ) ) || isset( $assoc_args['update-snippets'] ) )
-			call_user_func( array( "\\Sublime\\Snippets", 'run' ), $directory );
+		if (
+			( isset( $assoc_args['md'] ) && ! isset( $assoc_args['no-snippets'] ) && count( $classes ) ) ||
+			isset( $assoc_args['snippets'] )
+		) {
+			if ( $status = Snippets::generate( $directory ) ) {
+				WP_CLI::success( sprintf( '%s Snippets.', $status ) );
+			}
+		}
 	}
 
 	/**
@@ -147,7 +214,7 @@ class Command extends \WP_Parser\Command {
 	 */
 	protected function _do_import( array $data, $skip_sleep = false, $import_ignored = false ) {
 		if ( ! wp_get_current_user()->exists() )
-			WP_CLI::error( 'Please specify a valid user: --user=<id|login>' );
+			WP_CLI::error( 'Please specify a valid user: --user=<id|login|email>' );
 
 		/**
 		 * Delete posts before import

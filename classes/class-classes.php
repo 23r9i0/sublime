@@ -3,7 +3,6 @@
  * Export Classes
  *
  * @package sublime
- * @subpackage export
  */
 namespace Sublime;
 

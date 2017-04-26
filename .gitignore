@@ -1,3 +1,4 @@
 composer.lock
 vendor/
-cache-phpdoc.json
+*.json
+!composer.json
