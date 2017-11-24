@@ -30,21 +30,31 @@ class Capabilities extends Exporter {
 		$wp_roles = new WP_Roles();
 		/**
 		 * List of capabilities
+		 * Not include capabilities from wp-includes/capabilities.php
 		 *
 		 * By default set 'Super Admin' and 'Special Cases' Capabilities
+		 * Last revision 24/11/2017
 		 *
 		 * @see https://codex.wordpress.org/Roles_and_Capabilities
 		 *
 		 * @var array
 		 */
 		$capabilities = array(
+			'create_sites',           // Super Admin
+			'delete_sites',           // Super Admin
 			'manage_network',         // Super Admin
-			'manage_network_options', // Super Admin
+			'manage_sites',           // Super Admin
+			'manage_network_users',   // Super Admin
 			'manage_network_plugins', // Super Admin
 			'manage_network_themes',  // Super Admin
-			'manage_network_users',   // Super Admin
-			'manage_sites',           // Super Admin
+			'manage_network_options', // Super Admin
+			'upload_plugins',         // Super Admin
+			'upload_themes',          // Super Admin
+			'upgrade_network',        // Super Admin
+			'setup_network',          // Super Admin
 			'unfiltered_upload',      // Special Case
+			'delete_site',            // MU only
+			'customize',              // customize is equal to edit_theme_options, but is not defined anywhere when the wordpress is updated or installed
 		);
 
 		foreach ( (array) $wp_roles->roles as $role => $details ) {

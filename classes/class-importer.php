@@ -43,6 +43,12 @@ class Importer extends \WP_Parser\Importer {
 		$include_plugins = is_array( $include_plugins ) ? $include_plugins : array( $include_plugins );
 
 		/**
+		 * Include Themes by name folder, by default Exclude Themes Folder
+		 */
+		$include_themes = apply_filters( 'sublime_include_themes', array() );
+		$include_themes = is_array( $include_themes ) ? $include_themes : array( $include_themes );
+
+		/**
 		 * Exclude files to import
 		 *
 		 * Posible values:
@@ -60,7 +66,7 @@ class Importer extends \WP_Parser\Importer {
 				$path = wp_normalize_path( $file->getPathname() );
 
 				$exclude = array_filter( $exclude_files, function( $exclude ) use ( $path ) {
-					return preg_match( '/' . preg_quote( $exclude, '/' ) . '$/', $path );
+					return preg_match( "@{$exclude}$@", $path );
 				} );
 
 				if ( $exclude )
@@ -74,7 +80,13 @@ class Importer extends \WP_Parser\Importer {
 							$list[] = $path;
 						}
 					}
-				} else {
+				} elseif ( false !== strpos( $path, 'wp-content/themes' ) ) {
+					foreach ( $include_themes as $include_theme ) {
+						if ( false !== strpos( $path, $include_theme ) ) {
+							$list[] = $path;
+						}
+					}
+				} elseif ( false === strpos( $path, 'wp-content/' ) ) {
 					$list[] = $path;
 				}
 			}
@@ -91,17 +103,6 @@ class Importer extends \WP_Parser\Importer {
 
 	public static function get_parser_phpdoc( $files, $root ) {
 		$output = array();
-
-		// Fix WordPress Themes constants
-		// Move all files inside wp-content folder to first elements
-		$list = array();
-		foreach ( $files as $k => $file ) {
-			if ( false !== strpos( $file, 'wp-content' ) ) {
-				$list[] = $file;
-				unset( $files[ $k ] );
-			}
-		}
-		$files = array_merge( $list, $files );
 
 		foreach ( $files as $filename ) {
 			$file = new File_Reflector( $filename );
@@ -211,7 +212,8 @@ class Importer extends \WP_Parser\Importer {
 		$post_types = implode( ',', $post_types );
 		$post_ids = implode( ',', $post_ids );
 
-		if ( $post_ids = $wpdb->get_col( "SELECT DISTINCT ID FROM $wpdb->posts WHERE post_type IN ($post_types) AND ID NOT IN ($post_ids)" ) ) {
+		$query = "SELECT DISTINCT ID FROM $wpdb->posts WHERE post_type IN ($post_types) AND ID NOT IN ($post_ids)";
+		if ( $post_ids = $wpdb->get_col( $query ) ) {
 			$progress = \WP_CLI\Utils\make_progress_bar( 'Deleting orphans posts.', count( $post_ids ) );
 			foreach ( $post_ids as $post_id ) {
 				wp_delete_post( $post_id, true );
@@ -221,7 +223,8 @@ class Importer extends \WP_Parser\Importer {
 		}
 
 		// Delete empty taxonomies
-		if ( $terms = $wpdb->get_results( "SELECT tt.term_id, tt.taxonomy FROM $wpdb->term_taxonomy AS tt WHERE tt.taxonomy LIKE '%wp-parser-%' AND tt.count = 0" ) ) {
+		$query = "SELECT tt.term_id, tt.taxonomy FROM $wpdb->term_taxonomy AS tt WHERE tt.taxonomy LIKE '%wp-parser-%' AND tt.count = 0";
+		if ( $terms = $wpdb->get_results( $query ) ) {
 			$progress = \WP_CLI\Utils\make_progress_bar( 'Deleting empty taxonomies.', count( $terms ) );
 			foreach ( $terms as $term ) {
 				wp_delete_term( $term->term_id, $term->taxonomy );
@@ -300,7 +303,8 @@ class Importer extends \WP_Parser\Importer {
 		$this->file_meta = array(
 			'docblock'   => $file['file'], // File docblock
 			'term_id'    => $file['path'], // Term name in the file taxonomy is the file name
-			'deprecated' => $deprecated_file, // Deprecation status
+			'deprecated' => $deprecated_file, // Deprecation status,
+			'term_type'  => $type,
 		);
 
 		// TODO ensures values are set, but better handled upstream later
@@ -405,7 +409,11 @@ class Importer extends \WP_Parser\Importer {
 		if ( preg_match( '/^This (filter|action) is documented in/', $data['doc']['description'] ) )
 			return false;
 
-		if ( '' === $data['doc']['description'] && '' === $data['doc']['long_description'] && preg_match( '/wp-(admin|includes)/', $this->file_meta['term_id'] ) ) {
+		if (
+			'' === $data['doc']['description'] &&
+			'' === $data['doc']['long_description'] &&
+			preg_match( '/wp-(admin|includes)/', $this->file_meta['term_id'] )
+		) {
 			/**
 			 * Use for filter unknown hooks some hooks exists but not exists phpdoc
 			 */

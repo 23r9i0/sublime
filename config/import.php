@@ -23,7 +23,15 @@ add_filter( 'sublime_import_exclude_constant', function ( $bool, $name ) {
  * This filter is documented in lib/class-importer.php
  */
 add_filter( 'sublime_include_plugins', function ( $plugins ) {
-	return array( 'akismet' );
+	return $plugins;
+
+} );
+
+/**
+ * This filter is documented in lib/class-importer.php
+ */
+add_filter( 'sublime_include_themes', function ( $themes ) {
+	return $themes;
 
 } );
 
@@ -34,9 +42,10 @@ add_filter( 'sublime_include_plugins', function ( $plugins ) {
  */
 add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 	return array(
-		'wp-config.php',        // Exclude in case exists personal data
-		'wp-config-backup.php', // plugin wp-viewer-log generate copy of wp-config.php
-		'wp-config-sample.php', // Exclude in case exists all definitions already exists in others files
+		'wp-config(.*)', // Exclude for privacy
+		'deprecated(.*)', // Deprecated files
+		'wp-admin/admin-functions.php', // Deprecated file
+		'wp-admin/includes/noop.php' // Ignore file
 	);
 
 } );
