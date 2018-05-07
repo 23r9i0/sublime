@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Sublime
- * Plugin URI: https://github.com/23r9i0/sublime
+ * Plugin URI: https://github.com/kallookoo/sublime
  * Description: Helper to generate sublime text completions
  * Version: 2.0
- * Author: Sergio P.A. ( 23r9i0 )
+ * Author: Sergio ( kallookoo )
  * Author URI: http://dsergio.com/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html

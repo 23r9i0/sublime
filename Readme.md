@@ -10,7 +10,7 @@ sublime is the parser for creating WordPress completions, use [WordPress PHPDoc 
 Clone the repository into your WordPress plugins directory:
 
 ```bash
-git clone https://github.com/23r9i0/sublime.git
+git clone https://github.com/kallookoo/sublime.git
 ```
 
 After that install the dependencies using composer in the parser directory:
