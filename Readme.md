@@ -35,9 +35,8 @@ wp subl create /path/to/source/code --user=<id|login>
 wp subl generate --directory=/path/to/export --type=<all|constants|capabilities|functions|hooks|actions|filters|classes>
 ```
 
-
 # Notes
 
 * Use files inside to `sublime/config/` folder for change defaults filters. Optional
 * Use folder `sublime/missing` for include missing, by default if defined constants.php for include by example WP_HOME constant, this plugin auto load all files inside this folder on import
-* The bin folder contains files for personal use, they are used to streamline processes.
+* The vagrant folder contains files for personal use, they are used to streamline processes.
