@@ -65,7 +65,7 @@ add_filter( 'sublime_export_default_arguments', function( $arguments, $name ) {
 	}
 
 	// Add default __FILE__ constant for speed completion :)
-	$functions_to_constant_file = array(
+	$functions_with_constant_file = array(
 		'plugin_basename', // $file
 		'plugin_dir_path', // $file
 		'plugin_dir_url', // $file
@@ -74,7 +74,7 @@ add_filter( 'sublime_export_default_arguments', function( $arguments, $name ) {
 		'register_deactivation_hook', // $file
 		'register_uninstall_hook', // $file
 	);
-	if ( in_array( $name, $functions_to_constant_file ) ) {
+	if ( in_array( $name, $functions_with_constant_file ) ) {
 		$variable_name = ( 'plugins_url' === $name ) ? '$plugin' : '$file';
 		foreach ( $arguments as &$argument ) {
 			if ( $variable_name === $argument['name'] ) {

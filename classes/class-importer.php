@@ -166,6 +166,7 @@ class Importer extends \WP_Parser\Importer {
 			foreach ( $file->getClasses() as $class ) {
 				$class_data = array(
 					'name'       => $class->getShortName(),
+					'namespace'  => $class->getNamespace(),
 					'line'       => $class->getLineNumber(),
 					'end_line'   => $class->getNode()->getAttribute( 'endLine' ),
 					'final'      => $class->isFinal(),
@@ -292,7 +293,7 @@ class Importer extends \WP_Parser\Importer {
 			 */
 			$deprecated_regex_files = (array) apply_filters( 'wp_parser_deprecated_files', array() );
 			if ( count( $deprecated_regex_files ) ) {
-				$deprecated_regex_files = '/(' . implode( '|', $deprecated_regex_files ) . ')$/';
+				$deprecated_regex_files = '@(' . implode( '|', $deprecated_regex_files ) . ')$@';
 				if ( preg_match( $deprecated_regex_files, $file['path'] ) ) {
 					$deprecated_file = true;
 				}
@@ -452,7 +453,11 @@ class Importer extends \WP_Parser\Importer {
 		global $wpdb;
 
 		$is_new_post = true;
-		$slug        = sanitize_title( str_replace( '::', '-', $data['name'] ) );
+		$ns_name     = ( empty( $data['namespace'] ) || 'global' === $data['namespace'] ) ?
+			$data['name'] :
+			$data['namespace'] . '\\' . $data['name'];
+
+		$slug        = sanitize_title( str_replace( array( '\\', '::' ), '-', $ns_name ) );
 		$post_data   = wp_parse_args(
 			$arg_overrides,
 			array(
@@ -564,6 +569,9 @@ class Importer extends \WP_Parser\Importer {
 			return false;
 		}
 
+		$namespaces = ( ! empty( $data['namespace'] ) ) ? explode( '\\', $data['namespace'] ) : array();
+		$this->_set_namespaces( $post_id, $namespaces );
+
 		// If the item has @since markup, assign the taxonomy
 		$since_versions = wp_list_filter( $data['doc']['tags'], array( 'name' => 'since' ) );
 		if ( ! empty( $since_versions ) ) {
@@ -654,6 +662,17 @@ class Importer extends \WP_Parser\Importer {
 		if ( $post_data['post_type'] !== $this->post_type_class ) {
 			$anything_updated[] = update_post_meta( $post_id, '_wp-parser_args', $data['arguments'] );
 		}
+
+		// If the post type is using namespace aliases, record them.
+		if ( ! empty( $data['aliases'] ) ) {
+			$anything_updated[] = update_post_meta( $post_id, '_wp_parser_aliases', (array) $data['aliases'] );
+		}
+
+		// Recored the namespace if there is one.
+		if ( ! empty( $data['namespace'] ) ) {
+			$anything_updated[] = update_post_meta( $post_id, '_wp_parser_namespace', (string) addslashes( $data['namespace'] ) );
+		}
+
 		$anything_updated[] = update_post_meta( $post_id, '_wp-parser_line_num', (string) $data['line'] );
 		$anything_updated[] = update_post_meta( $post_id, '_wp-parser_end_line_num', (string) $data['end_line'] );
 		$anything_updated[] = update_post_meta( $post_id, '_wp-parser_tags', $data['doc']['tags'] );

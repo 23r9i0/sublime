@@ -45,7 +45,8 @@ add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 		'wp-config(.*)', // Exclude for privacy
 		'deprecated(.*)', // Deprecated files
 		'wp-admin/admin-functions.php', // Deprecated file
-		'wp-admin/includes/noop.php' // Ignore file
+		'wp-admin/includes/noop.php', // Ignore file
+		'wp-includes/(spl-autoload-)?compat.php', // Ignore PHP package
 	);
 
 } );
@@ -90,15 +91,33 @@ add_filter( 'wp_parser_pre_import_item', function( $import, $data, $parent_post_
 /**
  * This filter is documented in lib/class-importer.php
  */
+add_filter( 'wp_parser_import_item_post_data', function( $post_data, $existing_post_id ) {
+	switch ( $post_data['post_type'] ) {
+		case 'wp-parser-constant':
+			if ( 'MEDIA_TRASH' === $post_data['post_title'] ) {
+				$post_data['post_excerpt'] = 'Enable trash for media.';
+			}
+			break;
+
+		default:
+			break;
+	}
+
+	return $post_data;
+}, 10, 2 );
+
+/**
+ * This filter is documented in lib/class-importer.php
+ */
 add_filter( 'wp_parser_deprecated_files', function( $deprecated_regex_files ) {
 	$deprecated_regex_files = array(
-		'deprecated\.php', // wp deprecated files
-		'wp-admin\/includes\/noop\.php', // ?; Some functions, not is defined explications but if defined in others files or if phpdoc tag @ignore
-		'wp-includes\/compat\.php', // wp php functions
-		'wp-includes\/random_compat\/.*\.php', // PHP 7 support
-		'wp-includes\/theme-compat\/(comments|header|footer|sidebar)\.php', // wp themes compat deprecated files
-		'wp-content\/themes\/([^\/]+)\/inc\/back-compat\.php', // Themes wp ( functions|actions for internal uses, developers not use )
-		'wp-includes\/js\/tinymce\/wp-tinymce\.php', // Disabled import get_file function, developers not use
+		'deprecated.php', // wp deprecated files
+		'wp-admin/includes/noop.php', // ?; Some functions, not is defined explications but if defined in others files or if phpdoc tag @ignore
+		'wp-includes/(spl-autoload-)?compat.php', // Ignore PHP package
+		'wp-includes/random_compat/.*', // PHP 7 support
+		'wp-includes/theme-compat/.*', // wp themes compat files
+		'wp-content/themes/([^\/]+)/inc/back-compat.php', // Themes wp ( functions|actions for internal uses, developers not use )
+		'wp-includes/js/tinymce/wp-tinymce.php', // Disabled import get_file function, developers not use
 	);
 
 	return $deprecated_regex_files;
@@ -112,7 +131,7 @@ add_filter( 'wp_parser_skip_duplicate_with_empty_phpdoc', function( $skip, $name
 		return false;
 	}
 
-	// Valid Hooks by without valid PHPDoc aka empty PHPDoc
+	// Valid Hooks without valid PHPDoc aka empty PHPDoc
 	// Last check 4.6.1 Version
 	$list = array(
 		'auth_cookie_bad_session_token',

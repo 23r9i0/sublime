@@ -46,9 +46,9 @@ function wp_subl_create() {
   # <directory> [--quick]
   # require --user=<id|login|email>
 
-  local quick=" --quick"
+  local quick="--quick"
   local user="${user_arg_user:-1}"
-  local directory="$HOME/www/sublime"
+  local directory="/srv/www/sublime"
 
   info "Defaults:"
   info " - directory: ${directory}"
@@ -68,17 +68,15 @@ function wp_subl_generate() {
   # <directory> [--types=<type|type>] [--md] [--snippets] [--no-snippets]
 
   local types="${user_arg_types:-all}"
-  local md=" --md"
-  local snippets=""
-  local no_snippets=""
-  local directory="$HOME/sources/sublime-text-wordpress"
+  local md="--md"
+  local snippets="--no-snippets"
+  local directory="/srv/github/sublime-text-wordpress"
 
   info "Defaults:"
   info " - directory:   ${directory}"
   info " - types:       all"
   info " - md:          true"
   info " - snippets:    false"
-  info " - no snippets: false"
 
   # restore default separator
   types="${types//-/|}"
@@ -87,17 +85,22 @@ function wp_subl_generate() {
 
   [ "${user_arg_no_md}" = "true" ] && md=""
 
-  [ "${user_arg_snippets}" = "true" ] && snippets=" --snippets"
+  if [[ "${user_arg_snippets}" = "true" ]]; then
+    snippets="--snippets"
+  fi
 
-  [ "${user_arg_no_snippets}" = "true" ] && no_snippets=" --no-snippets"
+  if [[ "${user_arg_no_snippets}" = "true" ]]; then
+    snippets="--no-snippets"
+  fi
 
   # Prevent export completions
-  if [[ "${#input_args[@]}" -eq "1" && "${snippets}" != "" ]]
+  if [[ "${#input_args[@]}" -eq "1" && "${snippets}" != "--no-snippets" ]]
   then
     md=""
     types="none"
   fi
-  wp subl generate "${directory}" --types="${types}" --path="${wp_path}" ${md} ${snippets} ${no_snippets}
+
+  wp subl generate "${directory}" --types="${types}" --path="${wp_path}" ${md} ${snippets}
 }
 
 # RUN SCRIPT
@@ -125,7 +128,7 @@ do
 done
 
 # WordPress PATH
-wp_path="${HOME}/www/sublime"
+wp_path="/srv/www/sublime"
 temp=()
 for x in "${input_args[@]}"
 do
