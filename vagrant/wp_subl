@@ -70,7 +70,7 @@ function wp_subl_generate() {
   local types="${user_arg_types:-all}"
   local md="--md"
   local snippets="--no-snippets"
-  local directory="/srv/github/sublime-text-wordpress"
+  local directory="${HOME}/github/sublime-text-wordpress"
 
   info "Defaults:"
   info " - directory:   ${directory}"

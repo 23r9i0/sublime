@@ -282,7 +282,7 @@ class Importer extends \WP_Parser\Importer {
 		 * Force to define deprecated file
 		 * Use for not import and delete post if exists
 		 */
-		if ( ! $deprecated_file  ) {
+		if ( ! $deprecated_file ) {
 			/**
 			 * Filter for define WordPress deprecated files
 			 * Use regex format
@@ -435,7 +435,7 @@ class Importer extends \WP_Parser\Importer {
 	}
 
 	/**
-	 * Create a post for an item (a class or a function).
+	 * Create a post for an item.
 	 *
 	 * Anything that needs to be dealt identically for functions or methods should go in this function.
 	 * Anything more specific should go in either import_function() or import_class() as appropriate.
@@ -508,7 +508,8 @@ class Importer extends \WP_Parser\Importer {
 
 		// Look for an existing post for this item
 		$existing_post_id = $wpdb->get_col( $wpdb->prepare(
-			"SELECT DISTINCT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = %s ORDER BY post_date ASC", $slug, $post_data['post_type']
+			"SELECT DISTINCT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = %s ORDER BY post_date ASC",
+			$slug, $post_data['post_type']
 		) );
 
 		// If the file or this items is deprecated not import, if exists deleted
@@ -521,14 +522,18 @@ class Importer extends \WP_Parser\Importer {
 				$this->logger->info( $indent . sprintf( 'Deleting deprecated %s "%s"', $post_type_name_to_log, $data['name'] ) );
 				$deleted_with_error = array();
 				foreach ( $existing_post_id as $exists_post_id ) {
-					if ( $this->file_meta['deprecated'] || wp_list_filter( get_post_meta( $exists_post_id, '_wp-parser_tags', true ), array( 'name' => 'deprecated' ) ) ) {
+					if (
+						$this->file_meta['deprecated'] ||
+						wp_list_filter( get_post_meta( $exists_post_id, '_wp-parser_tags', true ), array( 'name' => 'deprecated' ) )
+					) {
 						if ( ! wp_delete_post( $exists_post_id, true ) ) {
 							$deleted_with_error[] = $exists_post_id;
 						}
 					}
 				}
-				if ( $deleted_with_error )
+				if ( $deleted_with_error ) {
 					$this->errors[] = $indent . sprintf( 'Problem deleting deprecated post for %s "%s"', $post_type_name_to_log, $data['name'] );
+				}
 			}
 
 			return false;
