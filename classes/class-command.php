@@ -146,14 +146,17 @@ class Command extends \WP_Parser\Command {
 		 * Force delete last cache of phpdoc
 		 * Compare directory and WordPress Version for detecting
 		 */
-		$delete_output_cache_file  = false;
-		$wp_parser_root_import_dir = get_option( 'wp_parser_root_import_dir', '' );
-		$directory_to_compare      = wp_normalize_path( __DIR__ );
+		$delete_output_cache_file      = false;
+		$wp_parser_root_import_dir     = get_option( 'wp_parser_root_import_dir', '' );
+		$directory_to_compare          = wp_normalize_path( __DIR__ );
+		$current_wp_version            = get_bloginfo( 'version' );
+		$wp_parser_imported_wp_version = get_option( 'wp_parser_imported_wp_version', $current_wp_version );
 
-		if ( false !== strpos( $wp_parser_root_import_dir, $directory_to_compare ) ) {
-			$current_wp_version            = get_bloginfo( 'version' );
-			$wp_parser_imported_wp_version = get_option( 'wp_parser_imported_wp_version', $current_wp_version );
-			$delete_output_cache_file      = ( $wp_parser_imported_wp_version != $current_wp_version );
+		if (
+			( false === strpos( $wp_parser_root_import_dir, $directory_to_compare ) ) ||
+			( $wp_parser_imported_wp_version !== $current_wp_version )
+		) {
+			$delete_output_cache_file = true;
 		}
 
 		/**
@@ -161,13 +164,13 @@ class Command extends \WP_Parser\Command {
 		 *
 		 * Default: false or compare wordpress version see above
 		 */
-		$delete_output_cache_file = apply_filters( 'sublime_delete_phpdoc_output_cache', $delete_output_cache_file );
-		if ( $delete_output_cache_file ) {
-			if ( false !== stream_resolve_include_path( $output_cache_file ) )
+		if ( apply_filters( 'sublime_delete_phpdoc_output_cache', false ) || $delete_output_cache_file ) {
+			if ( is_readable( $output_cache_file ) ) {
 				unlink( $output_cache_file );
+			}
 		}
 
-		if ( false !== stream_resolve_include_path( $output_cache_file ) ) {
+		if ( is_readable( $output_cache_file ) ) {
 			if ( $output = file_get_contents( $output_cache_file ) )
 				$output = ( 'json' == $format ) ? $output : json_decode( $output, true );
 		} else {
