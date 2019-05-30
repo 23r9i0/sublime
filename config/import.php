@@ -47,6 +47,7 @@ add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 		'wp-admin/admin-functions.php', // Deprecated file
 		'wp-admin/includes/noop.php', // Ignore file
 		'wp-includes/(spl-autoload-)?compat.php', // Ignore PHP package
+		'wp-includes/sodium_compat(.*)'
 	);
 
 } );
@@ -114,7 +115,7 @@ add_filter( 'wp_parser_deprecated_files', function( $deprecated_regex_files ) {
 		'deprecated.php', // wp deprecated files
 		'wp-admin/includes/noop.php', // ?; Some functions, not is defined explications but if defined in others files or if phpdoc tag @ignore
 		'wp-includes/(spl-autoload-)?compat.php', // Ignore PHP package
-		'wp-includes/random_compat/.*', // PHP 7 support
+		'wp-includes/(random|sodium)_compat/.*', // PHP 7 support
 		'wp-includes/theme-compat/.*', // wp themes compat files
 		'wp-content/themes/([^\/]+)/inc/back-compat.php', // Themes wp ( functions|actions for internal uses, developers not use )
 		'wp-includes/js/tinymce/wp-tinymce.php', // Disabled import get_file function, developers not use

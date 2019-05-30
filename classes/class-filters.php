@@ -41,11 +41,12 @@ class Filters extends Exporter {
 
 		$arguments  = $this->get_arguments( $post->ID );
 		$name       = ucfirst( $this->type );
-		$post_title = $post->post_title; //str_replace( array( '->', '$', '{', '}' ), array( '-', '' ), $post->post_title );
-		$completion = array( array(
-			'trigger'   => sprintf( 'add_%s-%s', $this->type, "{$post_title}\tWP {$name}" ),
-			'contents'  => $this->parse_contents( $post, $arguments ),
-		) );
+		$completion = array(
+			array(
+				'trigger'   => sprintf( 'add_%s-%s', $this->type, "{$post->post_title}\tWP {$name}" ),
+				'contents'  => $this->parse_contents( $post, $arguments ),
+			)
+		);
 
 		if ( false === strpos( $post->post_title, '{$' ) ) {
 			$completion[] = array(
@@ -53,12 +54,6 @@ class Filters extends Exporter {
 				'contents' => $post->post_title,
 			);
 		}
-
-		// $tags = get_post_meta( $post->ID, '_wp-parser_tags', true );
-		// if ( wp_list_filter( $tags, array( 'name' => 'private' ) ) ) {
-		// 	$this->private_completions[] = $completion;
-		// 	return false;
-		// }
 
 		return $completion;
 	}

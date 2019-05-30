@@ -304,8 +304,7 @@ class Importer extends \WP_Parser\Importer {
 		$this->file_meta = array(
 			'docblock'   => $file['file'], // File docblock
 			'term_id'    => $file['path'], // Term name in the file taxonomy is the file name
-			'deprecated' => $deprecated_file, // Deprecation status,
-			'term_type'  => $type,
+			'deprecated' => $deprecated_file, // Deprecation status
 		);
 
 		// TODO ensures values are set, but better handled upstream later

@@ -48,7 +48,7 @@ function wp_subl_create() {
 
   local quick="--quick"
   local user="${user_arg_user:-1}"
-  local directory="/srv/www/sublime"
+  local directory="/srv/www/wp"
 
   info "Defaults:"
   info " - directory: ${directory}"
@@ -60,7 +60,7 @@ function wp_subl_create() {
 
   [ "${user_arg_no_quick}" = "true" ] && quick=""
 
-  wp subl create "${directory}" --path="${wp_path}" --user="${user}" ${quick}
+  wp subl create "${directory}" --path="${wp_path}" --url="https://sublime.test" --user="${user}" ${quick}
 }
 
 # Parse args and run wp subl generate command
@@ -70,7 +70,7 @@ function wp_subl_generate() {
   local types="${user_arg_types:-all}"
   local md="--md"
   local snippets="--no-snippets"
-  local directory="${HOME}/github/sublime-text-wordpress"
+  local directory="${HOME}/Developer/github/sublime-text-wordpress"
 
   info "Defaults:"
   info " - directory:   ${directory}"
@@ -100,7 +100,7 @@ function wp_subl_generate() {
     types="none"
   fi
 
-  wp subl generate "${directory}" --types="${types}" --path="${wp_path}" ${md} ${snippets}
+  wp subl generate "${directory}" --types="${types}" --path="${wp_path}" --url="https://sublime.test" ${md} ${snippets}
 }
 
 # RUN SCRIPT
@@ -128,7 +128,7 @@ do
 done
 
 # WordPress PATH
-wp_path="/srv/www/sublime"
+wp_path="/srv/www/wp"
 temp=()
 for x in "${input_args[@]}"
 do
@@ -142,10 +142,10 @@ done
 input_args=("${temp[@]}")
 
 # Check if plugin is active
-if [[ $(wp plugin status sublime --path="${wp_path}" | grep 'Inactive') ]]
+if [[ $(wp plugin status sublime --path="${wp_path}" --url="https://sublime.test" | grep 'Inactive') ]]
 then
   info "Activating sublime plugin..."
-  wp plugin activate sublime --path="${wp_path}" || exit 1
+  wp plugin activate sublime --path="${wp_path}" --url="https://sublime.test" || exit 1
   run_composer "${wp_path}"
 fi
 

@@ -17,15 +17,14 @@ class Classes extends Exporter {
 	}
 
 	public function generate_completion( $post ) {
+		$name = $post->post_title;
 		/**
 		 * Use for define class if global variable
 		 *
 		 * e.g.: $wpdb
 		 */
-		if ( ! apply_filters( 'sublime_export_method_is_global_variable', false, current( explode( '::', $post->post_title ) ) ) ) {
-			$name = $post->post_title;
-		} else {
-			$name = sprintf( 'global \$%s;', $post->post_title );
+		if ( apply_filters( 'sublime_export_method_is_global_variable', false, $name ) ) {
+			$name = sprintf( '${1:global \$}%s;', $name );
 		}
 
 		return array(
