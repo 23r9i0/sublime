@@ -46,8 +46,8 @@ add_filter( 'sublime_exclude_files', function ( $exclude_files ) {
 		'deprecated(.*)', // Deprecated files
 		'wp-admin/admin-functions.php', // Deprecated file
 		'wp-admin/includes/noop.php', // Ignore file
-		'wp-includes/(spl-autoload-)?compat.php', // Ignore PHP package
-		'wp-includes/sodium_compat(.*)'
+		'wp-includes/(spl-autoload-|theme-)?compat.php', // Ignore PHP package
+		'wp-includes/(sodium|random)_compat(.*)'
 	);
 
 } );
