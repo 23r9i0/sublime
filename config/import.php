@@ -13,6 +13,8 @@ add_filter( 'sublime_import_exclude_constant', function ( $bool, $name ) {
 	$exclude = array(
 		'object',    // Backcompat used OBJECT
 		'$GUIDname', // Dynamic Constants generated in wp-includes/ID3/module.audio-video.asf.php
+		'PHP_INT_MAX',
+		'PHP_INT_MIN',
 	);
 
 	return in_array( $name, $exclude );

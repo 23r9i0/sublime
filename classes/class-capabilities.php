@@ -30,31 +30,94 @@ class Capabilities extends Exporter {
 		$wp_roles = new WP_Roles();
 		/**
 		 * List of capabilities
-		 * Not include capabilities from wp-includes/capabilities.php
 		 *
-		 * By default set 'Super Admin' and 'Special Cases' Capabilities
-		 * Last revision 24/11/2017
+		 * The following capabilities are manually defined
+		 * as they are not set by default in roles.
 		 *
-		 * @see https://codex.wordpress.org/Roles_and_Capabilities
+		 * Extracted and compared from the following files:
+		 * - wp-includes/capabilities.php
+		 * - wp-admin/includes/schema.php
+		 *
+		 * Last revision 02/11/2020
 		 *
 		 * @var array
 		 */
 		$capabilities = array(
-			'create_sites',           // Super Admin
-			'delete_sites',           // Super Admin
-			'manage_network',         // Super Admin
-			'manage_sites',           // Super Admin
-			'manage_network_users',   // Super Admin
-			'manage_network_plugins', // Super Admin
-			'manage_network_themes',  // Super Admin
-			'manage_network_options', // Super Admin
-			'upload_plugins',         // Super Admin
-			'upload_themes',          // Super Admin
-			'upgrade_network',        // Super Admin
-			'setup_network',          // Super Admin
-			'unfiltered_upload',      // Special Case
-			'delete_site',            // MU only
-			'customize',              // customize is equal to edit_theme_options, but is not defined anywhere when the wordpress is updated or installed
+			'activate_plugin',
+			'add_comment_meta',
+			'add_post_meta',
+			'add_term_meta',
+			'add_user_meta',
+			'add_users',
+			'assign_categories',
+			'assign_post_tags',
+			'assign_term',
+			'assign_terms',
+			'create_sites',
+			'customize',
+			'deactivate_plugin',
+			'deactivate_plugins',
+			'delete_blocks',
+			'delete_categories',
+			'delete_comment_meta',
+			'delete_others_blocks',
+			'delete_page',
+			'delete_post',
+			'delete_post_meta',
+			'delete_post_tags',
+			'delete_private_blocks',
+			'delete_published_blocks',
+			'delete_site',
+			'delete_sites',
+			'delete_term',
+			'delete_term_meta',
+			'delete_user',
+			'delete_user_meta',
+			'edit_blocks',
+			'edit_categories',
+			'edit_comment',
+			'edit_comment_meta',
+			'edit_css',
+			'edit_others_blocks',
+			'edit_page',
+			'edit_post',
+			'edit_post_meta',
+			'edit_post_tags',
+			'edit_private_blocks',
+			'edit_published_blocks',
+			'edit_term',
+			'edit_term_meta',
+			'edit_user',
+			'edit_user_meta',
+			'erase_others_personal_data',
+			'export_others_personal_data',
+			'install_languages',
+			'manage_network',
+			'manage_network_options',
+			'manage_network_plugins',
+			'manage_network_themes',
+			'manage_network_users',
+			'manage_post_tags',
+			'manage_privacy_options',
+			'manage_sites',
+			'promote_user',
+			'publish_blocks',
+			'publish_post',
+			'read_page',
+			'read_post',
+			'read_private_blocks',
+			'remove_user',
+			'resume_plugin',
+			'resume_plugins',
+			'resume_theme',
+			'resume_themes',
+			'setup_network',
+			'update_languages',
+			'update_php',
+			'upgrade_network',
+			'upload_plugins',
+			'upload_themes',
+			'view_site_health_checks',
 		);
 
 		foreach ( (array) $wp_roles->roles as $role => $details ) {
@@ -67,7 +130,7 @@ class Capabilities extends Exporter {
 			} );
 
 			foreach ( $current_capabilities as $capability ) {
-				if ( ! in_array( $capability, $capabilities ) ) {
+				if ( ! in_array( $capability, $capabilities, true ) ) {
 					$capabilities[] = $capability;
 
 				}

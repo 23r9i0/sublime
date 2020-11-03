@@ -143,15 +143,124 @@ define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
 /**
- * Authentication Unique Keys
+ * Authentication Unique Key
  *
  * wp-config.php file, not is defined on others files
  */
-define('AUTH_KEY', 'phrase');
+define( 'AUTH_KEY', 'phrase' );
 
 /**
- * Authentication Unique Keys
+ * Authentication Unique Key
  *
  * wp-config.php file, not is defined on others files
  */
-define('NONCE_KEY', 'phrase');
+define( 'SECURE_AUTH_KEY', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'LOGGED_IN_KEY', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'NONCE_KEY', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'AUTH_SALT', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'SECURE_AUTH_SALT', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'LOGGED_IN_SALT', 'phrase' );
+
+/**
+ * Authentication Unique Key
+ *
+ * wp-config.php file, not is defined on others files
+ */
+define( 'NONCE_SALT', 'phrase' );
+
+/**
+ * To enabled or disabled the error handler.
+ *
+ * True if the fatal error handler is enabled, false otherwise.
+ */
+define( 'WP_DISABLE_FATAL_ERROR_HANDLER', true );
+
+/**
+ * Network
+ */
+define( 'BLOG_ID_CURRENT_SITE', 1 );
+
+/**
+ * Network
+ */
+define( 'DOMAIN_CURRENT_SITE', 'hostname' );
+
+/**
+ * Network
+ */
+define( 'PATH_CURRENT_SITE', 'base' );
+
+/**
+ * Network
+ */
+define( 'SITE_ID_CURRENT_SITE', 1 );
+
+/**
+ * Network
+ */
+define( 'WP_ALLOW_MULTISITE', 1 );
+
+/**
+ * Compression of CSS
+ */
+define( 'COMPRESS_CSS', true );
+
+/**
+ * Compression of scripts
+ */
+define( 'COMPRESS_SCRIPTS', true );
+
+/**
+ * Compression and concatenation of scripts and CSS
+ */
+define( 'CONCATENATE_SCRIPTS', true );
+
+/**
+ * Forces gzip for compression
+ */
+define( 'ENFORCE_GZIP', true );
+
+/**
+ * Will prevent the hosts in this list from going through the proxy.
+ */
+define( 'WP_PROXY_BYPASS_HOSTS', 'localhost, www.example.com, *.wordpress.org' );
+
+/**
+ * Enable proxy support and host for connecting.
+ */
+define( 'WP_PROXY_HOST', '192.168.84.101' );
+
+/**
+ * Proxy port for connection. No default, must be defined.
+ */
+define( 'WP_PROXY_PORT', '8080' );
